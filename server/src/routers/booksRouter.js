@@ -8,7 +8,7 @@ booksRouter.route('/').get(BooksController.getAll)
 booksRouter.route('/:id/book').get(checkId, BooksController.getOne)
 booksRouter.route('/:id/book/comment').post(checkId, verifyAccessToken, BooksController.commentBook)
 booksRouter.route('/my').get(verifyAccessToken, BooksController.getMy)
-booksRouter.route('/add').post(verifyAccessToken, upload.single('file'), BooksController.createBook);
+booksRouter.route('/addbook').post(verifyAccessToken, upload.single('file'), BooksController.createBook);
 booksRouter.route('/:id/edit').put(checkId, verifyAccessToken, BooksController.editBook);
 booksRouter.route('/:id/delete').delete(checkId, verifyAccessToken, BooksController.deleteOne);
 booksRouter.route('/:id/like').post(checkId, verifyAccessToken, BooksController.likeBook);

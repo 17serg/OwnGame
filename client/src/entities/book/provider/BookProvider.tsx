@@ -18,6 +18,13 @@ function BookProvider({
         .then((data) => dispatch({ type: "SET_BOOKS", payload: data }))
         .catch(console.log);
     }, []);
+
+    // // const [initMyBooks, myDispatch] = useReducer(bookReducer, []);
+    // useEffect(() => {
+    //   BookApi.getMyBooks()
+    //     .then((data) => dispatch({ type: "SET_MYBOOKS", payload: data }))
+    //     .catch(console.log);
+    // }, []);
   
     const addHandler = async (dataForm: IBookCreateData): Promise<void> => {
       const newBook = await BookApi.addBook(dataForm);

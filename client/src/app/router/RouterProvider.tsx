@@ -4,6 +4,7 @@ import Layout from "../Layout/Layout";
 import { CLIENT_ROUTES } from "@/shared/enums/clientRoutes";
 import { SignUpPage, LoginPage } from "@/pages";
 import { MainPage } from "@/pages/MainPage/MainPage";
+import { AddBookPage } from "@/pages/AddBookPage/AddBookPage";
 
 export default function RouterProvider(): React.JSX.Element {
   return (
@@ -11,7 +12,7 @@ export default function RouterProvider(): React.JSX.Element {
       <Route element={<Layout />}>
         <Route path={CLIENT_ROUTES.MAIN} element={<MainPage />} />
         {/* <Route path={CLIENT_ROUTES.BOOKS} element={<ProductPage />} /> */}
-        {/* <Route path={CLIENT_ROUTES.ADDBOOK} element={<ProductPage />} /> */}
+        <Route path={CLIENT_ROUTES.ADDBOOK} element={<AddBookPage />} />
         <Route path={CLIENT_ROUTES.SIGN_UP} element={<SignUpPage />} />
         <Route path={CLIENT_ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={CLIENT_ROUTES.NOT_FOUND} element={<h1>No content</h1>} />

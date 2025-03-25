@@ -47,7 +47,7 @@ export default function NavBar(): React.JSX.Element {
           ></IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             <NavLink to="/" style={styles.navLink}>
-              {user ? `Welcome, ${user.name}` : "Home"}
+              {user ? `Welcome, ${user.name}` : "Guest"}
             </NavLink>
             <NavLink to={CLIENT_ROUTES.MAIN} style={styles.navLink}>
               Main

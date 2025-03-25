@@ -14,11 +14,12 @@ export interface IBookCreateData {
   description: string;
   link: string;
   // userId: number;
-  fileName: string;
+  fileName?: string;
 }
 
 export type BookActionType =
   | { type: 'SET_BOOKS'; payload: IBook[] }
+  | { type: 'SET_MYBOOKS'; payload: IBook[] }
   | { type: 'ADD_BOOK'; payload: IBook }
   | { type: 'DELETE_BOOK'; payload: IBook['id'] };
 

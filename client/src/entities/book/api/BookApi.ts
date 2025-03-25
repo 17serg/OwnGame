@@ -10,13 +10,18 @@ class BookService {
     return data;
   }
 
+  async getMyBooks(): Promise<IBook[]> {
+    const { data } = await this.client<IBook[]>("/books/mybooks");
+    return data;
+  }
+
   async addBook(book: IBookCreateData): Promise<IBook> {
-    const { data } = await this.client.post<IBook>("/books", book);
+    const { data } = await this.client.post<IBook>("/books/addbook", book);
     return data;
   }
 
   async deleteBook(id: IBook["id"]): Promise<AxiosResponse> {
-    return this.client.delete<AxiosResponse>(`/books/${id}`);
+    return this.client.delete<AxiosResponse>(`/books/${id}/delete`);
   }
 }
 export default new BookService(axiosInstance);

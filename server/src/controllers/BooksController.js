@@ -38,7 +38,7 @@ class BooksController {
 
   static async createBook(req, res) {
     const { id: userId } = res.locals.user;
-    const { title, description, url } = req.body;
+    const { title, description, link: url} = req.body;
     console.log(req.file)
     let name=null
     try {

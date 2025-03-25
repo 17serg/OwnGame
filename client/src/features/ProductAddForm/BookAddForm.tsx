@@ -1,40 +1,47 @@
-import { IProductCreateData } from "@/entities/product/model";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Grid2 } from "@mui/material";
-import { useProduct } from "@/entities/product/hooks/useProduct";
-
-export default function ProductAddForm(): React.JSX.Element {
-  const { addHandler } = useProduct();
+import { useBooks } from "@/entities/book/hooks/useBooks";
+import { IBook, IBookCreateData } from "@/entities/book/model";
+import { BookContext } from "@/entities/book/context/BookContext";
+import { useContext } from "react";
+import { useUser } from "@/entities/user/hooks/useUser";
+import BookCard from "@/entities/book/ui/ProductCard/BookCard";
+import { Box, Paper } from "@mui/material";
+export default function BookAddForm(): React.JSX.Element {
+  const books = useContext<IBook[]>(BookContext);
+  const { user } = useUser();
+  const { addHandler } = useBooks();
+  const { deleteHandler } = useBooks();
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors, isDirty },
-  } = useForm<IProductCreateData>({
+  } = useForm<IBookCreateData>({
     defaultValues: {
       title: "",
-      desc: "",
-      url: "",
-      price: 0,
+      description: "",
+      link: "",
     },
     mode: "onBlur",
   });
 
-  const onSubmit: SubmitHandler<IProductCreateData> = (data) => {
+  const onSubmit: SubmitHandler<IBookCreateData> = (data) => {
     addHandler({
       title: data.title,
-      desc: data.desc,
-      url: data.url,
-      price: Number(data.price),
+      description: data.description,
+      link: data.link,
     })
       .then(() => reset())
       .catch(console.log);
   };
 
+  const myBooks = books.filter((book) => book.userId === user?.id);
+
   return (
+    <>
     <Grid2 container justifyContent="center">
       <Box
         component="form"
@@ -75,7 +82,7 @@ export default function ProductAddForm(): React.JSX.Element {
         />
 
         <Controller
-          name="desc"
+          name="description"
           control={control}
           rules={{
             required: "Description is required",
@@ -95,8 +102,8 @@ export default function ProductAddForm(): React.JSX.Element {
               variant="outlined"
               label="Description"
               type="text"
-              error={!!errors.desc}
-              helperText={errors.desc?.message}
+              error={!!errors.description}
+              helperText={errors.description?.message}
               sx={{ minWidth: 200 }}
               //   multiline
               rows={2}
@@ -104,37 +111,9 @@ export default function ProductAddForm(): React.JSX.Element {
           )}
         />
 
+      
         <Controller
-          name="price"
-          control={control}
-          rules={{
-            required: "Price is required",
-            min: {
-              value: 0.1,
-              message: "Price must be greater than 0",
-            },
-            max: {
-              value: 100,
-              message: "Price must be less than 100",
-            },
-          }}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              size="small"
-              variant="outlined"
-              label="Price"
-              type="number"
-              inputProps={{ step: "0.1", min: "0.1" }}
-              error={!!errors.price}
-              helperText={errors.price?.message}
-              sx={{ minWidth: 120 }}
-            />
-          )}
-        />
-
-        <Controller
-          name="url"
+          name="link"
           control={control}
           rules={{
             required: "URL is required",
@@ -151,8 +130,8 @@ export default function ProductAddForm(): React.JSX.Element {
               variant="outlined"
               label="URL"
               type="url"
-              error={!!errors.url}
-              helperText={errors.url?.message}
+              error={!!errors.link}
+              helperText={errors.link?.message}
               sx={{ minWidth: 250 }}
             />
           )}
@@ -168,5 +147,24 @@ export default function ProductAddForm(): React.JSX.Element {
         </Button>
       </Box>
     </Grid2>
+     <Paper elevation={0}>
+     <Box
+       mt={1}
+       py={2}
+       px={2}
+       display="flex"
+       flexDirection="row"
+       flexWrap="wrap"
+     >
+       {myBooks.map((el) => (
+         <Box p={1} key={el.id}>
+           <BookCard book={el} 
+           deleteHandler={deleteHandler}
+           />
+         </Box>
+       ))}
+     </Box>
+   </Paper>
+   </>
   );
 }

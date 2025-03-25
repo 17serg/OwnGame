@@ -8,6 +8,8 @@ const bookReducer: React.Reducer<IBook[], BookActionType> = (
   switch (type) {
     case "SET_BOOKS":
       return payload;
+      case "SET_MYBOOKS":
+        return payload;
     case "ADD_BOOK":
       return [payload, ...state];
     case "DELETE_BOOK":

@@ -1,13 +1,13 @@
 import React, { CSSProperties } from "react";
 import {
-  // Button,
+  Button,
   Card,
-  // CardActions,
+  CardActions,
   CardContent,
   CardMedia,
   Typography,
 } from "@mui/material";
-// import { useUser } from "@/entities/user/hooks/useUser";
+import { useUser } from "@/entities/user/hooks/useUser";
 import { IBook } from "../../model";
 
 const cardStyle: CSSProperties = {
@@ -20,14 +20,14 @@ const cardStyle: CSSProperties = {
 };
 type BookTypeProps = {
   book: IBook;
-  // deleteHandler: (id: IBook["id"]) => Promise<void>;
+  deleteHandler: (id: IBook["id"]) => Promise<void>;
 };
 
 export default function BookCard({
   book,
-  // deleteHandler,
+  deleteHandler,
 }: BookTypeProps): React.JSX.Element {
-  // const { user } = useUser();
+  const { user } = useUser();
   return (
     <Card sx={cardStyle}>
       <CardContent>
@@ -39,13 +39,13 @@ export default function BookCard({
         </Typography>
         <CardMedia component="img" height="194" image={book.link} alt="img" />
       </CardContent>
-      {/* <CardActions>
-        {user && user.id === product.userId && (
-          <Button size="small" onClick={() => deleteHandler(product.id)}>
+      <CardActions>
+        {user && user.id === book.userId && (
+          <Button size="small" onClick={() => deleteHandler(book.id)}>
             Delete
           </Button>
         )}
-      </CardActions> */}
+      </CardActions>
     </Card>
   );
 }
