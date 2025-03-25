@@ -10,8 +10,18 @@ class BookService {
     return data;
   }
 
+  async getFavouriteBooks(): Promise<IBook[]> {
+    const { data } = await this.client<IBook[]>("/books/favourite");
+    return data;
+  }
+
   async getMyBooks(): Promise<IBook[]> {
-    const { data } = await this.client<IBook[]>("/books/mybooks");
+    const { data } = await this.client<IBook[]>("/books/my");
+    return data;
+  }
+
+  async likeBook(id: IBook["id"]): Promise<IBook> {
+    const { data } = await this.client.post<IBook>(`/books/${id}/likeBook`);
     return data;
   }
 

@@ -29,6 +29,16 @@ class BooksService {
     });
   }
 
+  static getFavouriteBooks(userId) {
+    return Book.findAll({
+      // where: { userId },
+      include: {
+        model: Like,
+        where: { userId }
+      },
+    });
+  }
+
   static async addBook(title, description, link, userId, fileName) {
     try {
       if (!title || !description || !link) throw new Error('Не все поля переданы');

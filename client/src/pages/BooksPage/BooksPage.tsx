@@ -1,19 +1,20 @@
 import { BookContext } from "@/entities/book/context/BookContext";
 import { useBooks } from "@/entities/book/hooks/useBooks";
 import { IBook } from "@/entities/book/model";
-import BookCard from "@/entities/book/ui/ProductCard/BookCard";;
+import BookCard from "@/entities/book/ui/ProductCard/BookCard";import { useUser } from "@/entities/user/hooks/useUser";
+;
 import { Box, Paper } from "@mui/material";
 import React, { useContext, useEffect } from "react";
 
-export default function BookList(): React.JSX.Element {
-  
+export function BooksPage(): React.JSX.Element {
+    const { user } = useUser();
   const books = useContext<IBook[]>(BookContext);
-  console.log(books)
-    const {BooksHandler} = useBooks()
-    useEffect(() => {
-      BooksHandler();
-    },[])
-  const { deleteHandler } = useBooks();
+      const {favouriteBooksHandler} = useBooks()
+      useEffect(() => {
+        favouriteBooksHandler(user?.id);
+      },[])
+
+  const { deleteHandler } = useBooks()
   const {favouriteHandler} = useBooks()
   return (
     <Paper elevation={0}>

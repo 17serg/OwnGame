@@ -1,18 +1,19 @@
-import { BookActionType, IBook } from "../model";
+import { BookActionType, IBook } from '../model';
 
-const bookReducer: React.Reducer<IBook[], BookActionType> = (
-  state,
-  action
-) => {
+const bookReducer: React.Reducer<IBook[], BookActionType> = (state, action) => {
   const { type, payload } = action;
   switch (type) {
-    case "SET_BOOKS":
+    case 'SET_BOOKS':
       return payload;
-      case "SET_MYBOOKS":
-        return payload;
-    case "ADD_BOOK":
+    case 'SET_MY_BOOKS':
+      return payload;
+    case 'ADD_BOOK':
       return [payload, ...state];
-    case "DELETE_BOOK":
+    case 'LIKE_BOOK':
+      return state;
+    case 'SET_FAVOURITE_BOOKS':
+      return payload;
+    case 'DELETE_BOOK':
       return state.filter((el) => el.id !== payload);
 
     default:

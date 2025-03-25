@@ -21,11 +21,13 @@ const cardStyle: CSSProperties = {
 type BookTypeProps = {
   book: IBook;
   deleteHandler: (id: IBook["id"]) => Promise<void>;
+  favouriteHandler: (id: IBook["id"]) => Promise<void>;
 };
 
 export default function BookCard({
   book,
   deleteHandler,
+  favouriteHandler,
 }: BookTypeProps): React.JSX.Element {
   const { user } = useUser();
   return (
@@ -43,6 +45,11 @@ export default function BookCard({
         {user && user.id === book.userId && (
           <Button size="small" onClick={() => deleteHandler(book.id)}>
             Delete
+          </Button>
+        )}
+                {user && (
+          <Button size="small" onClick={() => favouriteHandler(book.id)}>
+            Add favourite
           </Button>
         )}
       </CardActions>

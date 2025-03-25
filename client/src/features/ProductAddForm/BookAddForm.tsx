@@ -5,15 +5,21 @@ import { Grid2 } from "@mui/material";
 import { useBooks } from "@/entities/book/hooks/useBooks";
 import { IBook, IBookCreateData } from "@/entities/book/model";
 import { BookContext } from "@/entities/book/context/BookContext";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useUser } from "@/entities/user/hooks/useUser";
 import BookCard from "@/entities/book/ui/ProductCard/BookCard";
 import { Box, Paper } from "@mui/material";
+
 export default function BookAddForm(): React.JSX.Element {
   const books = useContext<IBook[]>(BookContext);
   const { user } = useUser();
+      const {MyBooksHandler} = useBooks()
+      useEffect(() => {
+        MyBooksHandler(user?.id);
+      },[])
   const { addHandler } = useBooks();
   const { deleteHandler } = useBooks();
+
   const {
     control,
     handleSubmit,
@@ -38,7 +44,7 @@ export default function BookAddForm(): React.JSX.Element {
       .catch(console.log);
   };
 
-  const myBooks = books.filter((book) => book.userId === user?.id);
+  // const myBooks = books.filter((book) => book.userId === user?.id);
 
   return (
     <>
@@ -156,7 +162,7 @@ export default function BookAddForm(): React.JSX.Element {
        flexDirection="row"
        flexWrap="wrap"
      >
-       {myBooks.map((el) => (
+       {books.map((el) => (
          <Box p={1} key={el.id}>
            <BookCard book={el} 
            deleteHandler={deleteHandler}

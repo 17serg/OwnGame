@@ -1,11 +1,9 @@
-import { useEffect, useReducer } from "react";
-// import productReducer from "../context/PostReducer";
-// import ProductApi from "../api/ProductApi";
+import {  useEffect, useReducer } from "react";
 import { IBook, IBookCreateData } from "../model";
 import { BookContext, BookContextHandler } from "../context/BookContext";
 import bookReducer from "../context/BookReducer";
 import BookApi from "../api/BookApi";
-// import { ProductContext, ProductContextHandler } from "../context/ProductContext";
+// import { IUser } from "@/entities/user/model";
 
 function BookProvider({
     children,
@@ -13,23 +11,31 @@ function BookProvider({
     children: React.ReactElement;
   }): React.JSX.Element {
     const [initBooks, dispatch] = useReducer(bookReducer, []);
-    useEffect(() => {
-      BookApi.getBooks()
-        .then((data) => dispatch({ type: "SET_BOOKS", payload: data }))
-        .catch(console.log);
-    }, []);
 
-    // // const [initMyBooks, myDispatch] = useReducer(bookReducer, []);
-    // useEffect(() => {
-    //   BookApi.getMyBooks()
-    //     .then((data) => dispatch({ type: "SET_MYBOOKS", payload: data }))
-    //     .catch(console.log);
-    // }, []);
-  
+    const BooksHandler = async (): Promise<void> => {
+      const books = await BookApi.getBooks();
+      dispatch({ type: "SET_BOOKS", payload: books });
+    };
+
+    const favouriteBooksHandler = async (): Promise<void> => {
+      const books = await BookApi.getFavouriteBooks();
+      dispatch({ type: "SET_FAVOURITE_BOOKS", payload: books });
+    };
+    const MyBooksHandler = async (): Promise<void> => {
+      const books = await BookApi.getMyBooks();
+      dispatch({ type: "SET_MY_BOOKS", payload: books });
+    };
+    
     const addHandler = async (dataForm: IBookCreateData): Promise<void> => {
       const newBook = await BookApi.addBook(dataForm);
       dispatch({ type: "ADD_BOOK", payload: newBook });
     };
+
+    const favouriteHandler = async (id: IBook["id"]): Promise<void> => {
+      await BookApi.likeBook(id);
+      dispatch({ type: "LIKE_BOOK", payload: id });
+    };
+
   
     const deleteHandler = async (id: IBook["id"]): Promise<void> => {
       try {
@@ -42,12 +48,10 @@ function BookProvider({
   
     return (
       <BookContext.Provider value={initBooks}>
-        <BookContextHandler.Provider value={{ addHandler, deleteHandler }}>
+        <BookContextHandler.Provider value={{ BooksHandler,addHandler, deleteHandler, MyBooksHandler , favouriteHandler, favouriteBooksHandler}}>
           {children}
         </BookContextHandler.Provider>
       </BookContext.Provider>
     );
   }
   export default BookProvider;
-  
-  

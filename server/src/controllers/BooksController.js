@@ -36,6 +36,17 @@ class BooksController {
     }
   }
 
+  static async getFavourite(req, res) {
+    const { id: userId } = res.locals.user;
+    try {
+      const books = await BooksService.getFavouriteBooks(userId);
+      res.json(books);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
   static async createBook(req, res) {
     const { id: userId } = res.locals.user;
     const { title, description, link: url} = req.body;
