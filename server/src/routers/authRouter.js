@@ -1,25 +1,24 @@
 const express = require('express');
-const { User,  Group} = require('../../db/models');
+const { User} = require('../../db/models');
 const bcrypt = require('bcrypt');
 const generateTokens = require('../utils/generateTokens');
 const cookieConfig = require('../configs/cookie.config');
 
 const authRouter = express.Router();
 
-authRouter.route('/new').post(async (req, res) => {
+authRouter.route('/signup').post(async (req, res) => {
   try {
-    const { userName, email, password, group, year
+    const { name, email, password
     } = req.body;
     console.log(req.body)
-    if (!userName || !email || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({ message: 'Все поля обязательны' });
     }
-    const groupFromBd = await Group.findOne({where:{name: group}})
     const [user, created] = await User.findOrCreate({
       where: { email },
-      defaults: { name: userName, password: await bcrypt.hash(password, 5), groupId:groupFromBd.id , year},
+      defaults: { name, password: await bcrypt.hash(password, 5)},
     });
-    console.log(user);
+    // console.log(user);
 
     if (!created) {
       return res.status(400).json({ message: 'Email уже используется' });

@@ -49,9 +49,17 @@ export default function NavBar(): React.JSX.Element {
             <NavLink to="/" style={styles.navLink}>
               {user ? `Welcome, ${user.name}` : "Home"}
             </NavLink>
-            <NavLink to={CLIENT_ROUTES.PRODUCTS} style={styles.navLink}>
-              Products
+            <NavLink to={CLIENT_ROUTES.MAIN} style={styles.navLink}>
+              Main
             </NavLink>
+            {user && (<>
+            <NavLink to={CLIENT_ROUTES.BOOKS} style={styles.navLink}>
+              Books
+            </NavLink>
+            <NavLink to={CLIENT_ROUTES.ADDBOOK} style={styles.navLink}>
+              AddBook
+            </NavLink>
+            </>)}
             {!user && (
               <>
                 <NavLink to={CLIENT_ROUTES.SIGN_UP} style={styles.navLink}>

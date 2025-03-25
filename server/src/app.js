@@ -17,7 +17,7 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(cors(corsConfig));
 
-app.use('/api/account/', authRouter);
+app.use('/api/auth/', authRouter);
 app.use('/api/tokens/', tokensRouter);
 app.use('/api/books/', booksRouter);
 
