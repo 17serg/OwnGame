@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Route, Routes } from "react-router";
 import Layout from "../Layout/Layout";
 import { CLIENT_ROUTES } from "@/shared/enums/clientRoutes";
@@ -6,8 +6,16 @@ import { SignUpPage, LoginPage } from "@/pages";
 import { MainPage } from "@/pages/MainPage/MainPage";
 import { AddBookPage } from "@/pages/AddBookPage/AddBookPage";
 import { BooksPage } from "@/pages/BooksPage/BooksPage";
+import { useAppDispatch } from "@/shared/lib/reduxHooks";
+import { loadAllBooksThunk, loadFavouriteBooksThunk, loadUserBooksThunk } from "@/features/bookSlice/thunk";
 
 export default function RouterProvider(): React.JSX.Element {
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+      dispatch(loadAllBooksThunk())
+      dispatch(loadUserBooksThunk())
+      dispatch(loadFavouriteBooksThunk())
+    },[])
   return (
     <Routes>
       <Route element={<Layout />}>

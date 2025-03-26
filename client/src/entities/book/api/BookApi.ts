@@ -22,6 +22,13 @@ class BookService {
 
   async likeBook(id: IBook["id"]): Promise<IBook> {
     const { data } = await this.client.post<IBook>(`/books/${id}/likeBook`);
+    // console.log(data)
+    return data;
+  }
+
+  async readBook(id: IBook["id"]): Promise<IBook> {
+    const { data } = await this.client.post<IBook>(`/books/${id}/readBook`);
+    // console.log(data)
     return data;
   }
 

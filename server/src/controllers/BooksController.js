@@ -96,14 +96,28 @@ class BooksController {
     const { id: bookId } = res.locals;
     const { id: userId } = res.locals.user;
     try {
-      await BooksService.likeBook(bookId, userId);
-      const books = await BooksService.getAllBooks();
-      return res.status(201).json(books);
+      const like = await BooksService.likeBook(bookId, userId);
+      // const books = await BooksService.getAllBooks();
+      return res.status(201).json(like)
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: 'Ошибка сервера' });
     }
   }
+
+  static async readBook(req, res) {
+    const { id: bookId } = res.locals;
+    const { id: userId } = res.locals.user;
+    try {
+      const read = await BooksService.readBook(bookId, userId);
+      // const books = await BooksService.getAllBooks();
+      return res.status(201).json(read)
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+  
 
   static async commentBook(req, res) {
     const { id: bookId } = res.locals;

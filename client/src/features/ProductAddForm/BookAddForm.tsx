@@ -8,20 +8,16 @@ import { useUser } from "@/entities/user/hooks/useUser";
 import BookCard from "@/entities/book/ui/ProductCard/BookCard";
 import { Box, Paper } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "@/shared/lib/reduxHooks";
-import { loadUserBooksThunk } from "../bookSlice/thunk";
+import { addBookThunk, loadUserBooksThunk } from "../bookSlice/thunk";
 
 export default function BookAddForm(): React.JSX.Element {
   const books = useAppSelector((state) => state.books.usersBooks);
   const dispatch = useAppDispatch()
-  useEffect(() => {
-    dispatch(loadUserBooksThunk())
-  },[])
+  // useEffect(() => {
+  //   dispatch(loadUserBooksThunk())
+  // },[])
 
   const { user } = useUser();
-      // const {MyBooksHandler} = useBooks()
-
-  // const { addHandler } = useBooks();
-  // const { deleteHandler } = useBooks();
 
   const {
     control,
@@ -37,18 +33,12 @@ export default function BookAddForm(): React.JSX.Element {
     mode: "onBlur",
   });
 
-  // const 
-  // onSubmit: SubmitHandler<IBookCreateData> = (data) => {
-  //   addHandler({
-  //     title: data.title,
-  //     description: data.description,
-  //     link: data.link,
-  //   })
-  //     .then(() => reset())
-  //     .catch(console.log);
-  // };
-
-  // const myBooks = books.filter((book) => book.userId === user?.id);
+  const 
+  onSubmit: SubmitHandler<IBookCreateData> = (data) => {
+    dispatch(addBookThunk(data))
+      .then(() => reset())
+      .catch(console.log);
+  };
 
   return (
     <>
@@ -60,7 +50,7 @@ export default function BookAddForm(): React.JSX.Element {
         flexDirection="row"
         alignItems="center"
         gap={2}
-        // onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
         <Controller

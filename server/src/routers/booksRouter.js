@@ -11,6 +11,7 @@ booksRouter.route('/addbook').post(verifyAccessToken, upload.single('file'), Boo
 // booksRouter.route('/:id/edit').put(checkId, verifyAccessToken, BooksController.editBook);
 booksRouter.route('/:id/delete').delete(checkId, verifyAccessToken, BooksController.deleteOne);
 booksRouter.route('/:id/likeBook').post(checkId, verifyAccessToken, BooksController.likeBook);
+booksRouter.route('/:id/readBook').post(checkId, verifyAccessToken, BooksController.readBook);
 // booksRouter.route('/:id/download').get(checkId, BooksController.downloadBook);
 booksRouter.route('/my').get(verifyAccessToken, BooksController.getMy)
 booksRouter.route('/favourite').get(verifyAccessToken, BooksController.getFavourite)

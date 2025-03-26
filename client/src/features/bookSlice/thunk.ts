@@ -1,5 +1,6 @@
 import BookApi from '@/entities/book/api/BookApi';
-import { IBook } from '@/entities/book/model';
+import { IBook, IBookCreateData } from '@/entities/book/model';
+import { IUser } from '@/entities/user/model';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 // import placeService from '../../entities/place/api/service';
 // import { addPlaceSchema } from '../../entities/place/model/schema';
@@ -15,17 +16,25 @@ export const loadUserBooksThunk = createAsyncThunk('books/loadUserBooksThunk', (
     BookApi.getMyBooks(),
   );
 
-// export const loadUserRoadmapThunk = createAsyncThunk(
-//   'roadmaps/loadUserRoadmapThunk',
-//   (userId: UserT['id']) => placeService.getPlacesByUserId(userId),
-// );
+  export const loadFavouriteBooksThunk = createAsyncThunk('books/loadFavouriteBooksThunk', () =>
+    BookApi.getFavouriteBooks(),
+  );
 
 export const addFavouriteThunk = createAsyncThunk(
   'books/addFavouriteThunk',
   async (bookId: IBook['id']) => {
-    return BookApi.likeBook(bookId)
+    const data = await BookApi.likeBook(bookId)
+     return {data, bookId}
   },
 );
+
+export const addReadedThunk = createAsyncThunk(
+    'books/addReadedThunk',
+    async (bookId: IBook['id']) => {
+      const data = await BookApi.readBook(bookId)
+       return {data, bookId}
+    },
+  );
 
 export const deleteBookThunk = createAsyncThunk(
   'books/deleteBookThunk',
@@ -35,10 +44,10 @@ export const deleteBookThunk = createAsyncThunk(
   },
 );
 
-// export const addPlaceThunk = createAsyncThunk(
-//   'roadmaps/addPlaceThunk',
-//   async (formData: FormData) => {
-//     const data = addPlaceSchema.parse(Object.fromEntries(formData));
-//     return placeService.createPlace(data, Number(data.userId));
-//   },
-// );
+export const addBookThunk = createAsyncThunk(
+  'books/addBookThunk',
+  async (formData: IBookCreateData) => {
+    // console.log(formData)
+    return BookApi.addBook(formData);
+  },
+);

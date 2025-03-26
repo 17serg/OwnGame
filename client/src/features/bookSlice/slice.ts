@@ -1,13 +1,20 @@
 import { IBook } from '@/entities/book/model';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-import { deleteBookThunk, loadAllBooksThunk, loadUserBooksThunk } from './thunk';
-// import type { PlaceT, UserWithPlacesT } from '../../entities/place/model/types';;
+import {
+  addBookThunk,
+  addFavouriteThunk,
+  deleteBookThunk,
+  loadAllBooksThunk,
+  loadFavouriteBooksThunk,
+  loadUserBooksThunk,
+} from './thunk';
 
 export type BookState = {
   books: IBook[];
   usersBooks: IBook[];
   likedUsersBooks: IBook[];
+  //   changeButton:
   //   sort: {
   //     key: 'order' | 'name';
   //     order: 'asc' | 'desc';
@@ -84,21 +91,50 @@ export const bookSlice = createSlice({
       .addCase(loadUserBooksThunk.rejected, (state) => {
         state.isLoadingBooks = false;
       })
-      //       .addCase(loadUserRoadmapThunk.fulfilled, (state, action) => {
-      //         state.oneUserPlaces = action.payload;
-      //         applySort(state);
-      //       })
+      .addCase(loadFavouriteBooksThunk.fulfilled, (state, action) => {
+        state.likedUsersBooks = action.payload;
+        state.isLoadingBooks = false;
+      })
+      .addCase(loadFavouriteBooksThunk.pending, (state) => {
+        state.isLoadingBooks = true;
+      })
+      .addCase(loadFavouriteBooksThunk.rejected, (state) => {
+        state.isLoadingBooks = false;
+      })
       .addCase(deleteBookThunk.fulfilled, (state, action) => {
         const targetBook = state.books.find((book) => book.id === action.payload);
         if (!targetBook) return;
         state.books = state.books.filter((book) => book.id !== action.payload);
         state.usersBooks = state.usersBooks.filter((book) => book.id !== action.payload);
         state.likedUsersBooks = state.likedUsersBooks.filter((book) => book.id !== action.payload);
-        // .toSorted((a, b) => a.order - b.order)
+      })
+      .addCase(addFavouriteThunk.fulfilled, (state, action) => {
+        const targetBook = state.likedUsersBooks.find((book) => book.id === action.payload.bookId);
+
+        if (!targetBook) {
+            const newBook = {...action.payload.data}
+            state.books = [...state.books.map((book) => book.id === action.payload.bookId ? newBook : book)]
+            state.likedUsersBooks = [...state.likedUsersBooks, newBook]
+            state.usersBooks = [...state.usersBooks.map((book) => book.id === action.payload.bookId ? newBook : book)]
+        } else {
+          state.likedUsersBooks = state.likedUsersBooks.filter(
+            (book) => book.id !== action.payload.bookId,
+          );
+          state.books = [...state.books.filter((book) => book.id !== action.payload.bookId),  action.payload.data]
+          state.usersBooks = [...state.usersBooks.filter((book) => book.id !== action.payload.bookId),  action.payload.data]
+        }
+        // console.log(action.payload)
+      })
+      .addCase(addBookThunk.fulfilled, (state, action) => {
+        state.usersBooks = [...state.usersBooks, action.payload];
+        state.isLoadingBooks = false;
+      })
+      .addCase(addBookThunk.pending, (state) => {
+        state.isLoadingBooks = true;
+      })
+      .addCase(addBookThunk.rejected, (state) => {
+        state.isLoadingBooks = false;
       });
-    //       .addCase(addPlaceThunk.rejected, (state, action) => {
-    //         console.log(action.error);
-    //       });
   },
 });
 

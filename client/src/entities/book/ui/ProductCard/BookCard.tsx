@@ -10,7 +10,7 @@ import {
 import { useUser } from "@/entities/user/hooks/useUser";
 import { IBook } from "../../model";
 import { useAppDispatch } from "@/shared/lib/reduxHooks";
-import { addFavouriteThunk, deleteBookThunk } from "@/features/bookSlice/thunk";
+import { addFavouriteThunk, addReadedThunk, deleteBookThunk } from "@/features/bookSlice/thunk";
 
 const cardStyle: CSSProperties = {
   minWidth: 263,
@@ -28,6 +28,7 @@ export default function BookCard({
   book}: BookTypeProps): React.JSX.Element {
   const dispatch = useAppDispatch()
   const { user } = useUser();
+  // console.log(user.id)
   return (
     <Card sx={cardStyle}>
       <CardContent>
@@ -51,7 +52,14 @@ export default function BookCard({
           <Button size="small" 
           onClick={() => dispatch(addFavouriteThunk(book.id))}
           >
-            Add favourite
+            {(book && book?.Likes?.find(el=>el.userId===user.id))? "Delete favourite": "Add favourite"}
+          </Button>
+        )}
+                        {user && (
+          <Button size="small" 
+          onClick={() => dispatch(addReadedThunk(book.id))}
+          >
+            {(book && book?.Likes?.find(el=>el.userId===user.id && el.isReaded===true))? "Unread": "Add to readed"}
           </Button>
         )}
       </CardActions>

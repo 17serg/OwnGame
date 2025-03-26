@@ -6,10 +6,10 @@ import React, { useEffect } from "react";
 
 export default function BookList(): React.JSX.Element {
   const books = useAppSelector((state) => state.books.books);
-  const dispatch = useAppDispatch()
-    useEffect(() => {
-      void dispatch(loadAllBooksThunk());
-    },[])
+  // const dispatch = useAppDispatch()
+  //   useEffect(() => {
+  //     void dispatch(loadAllBooksThunk());
+  //   },[])
   // console.log(books)
 
   return (

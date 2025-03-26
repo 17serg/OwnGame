@@ -1,21 +1,18 @@
-import { BookContext } from "@/entities/book/context/BookContext";
-import { useBooks } from "@/entities/book/hooks/useBooks";
-import { IBook } from "@/entities/book/model";
-import BookCard from "@/entities/book/ui/ProductCard/BookCard";import { useUser } from "@/entities/user/hooks/useUser";
+import BookCard from "@/entities/book/ui/ProductCard/BookCard";
+import { loadFavouriteBooksThunk } from "@/features/bookSlice/thunk";
+import { useAppDispatch, useAppSelector } from "@/shared/lib/reduxHooks";
 ;
 import { Box, Paper } from "@mui/material";
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 
 export function BooksPage(): React.JSX.Element {
-    const { user } = useUser();
-  const books = useContext<IBook[]>(BookContext);
-      const {favouriteBooksHandler} = useBooks()
-      useEffect(() => {
-        favouriteBooksHandler(user?.id);
-      },[])
 
-  const { deleteHandler } = useBooks()
-  const {favouriteHandler} = useBooks()
+  const books = useAppSelector((state) => state.books.likedUsersBooks);
+    // const dispatch = useAppDispatch()
+    // useEffect(() => {
+    //   dispatch(loadFavouriteBooksThunk())
+    // },[])
+
   return (
     <Paper elevation={0}>
       <Box
@@ -29,8 +26,6 @@ export function BooksPage(): React.JSX.Element {
         {books.map((el) => (
           <Box p={1} key={el.id}>
             <BookCard book={el} 
-            deleteHandler={deleteHandler}
-            favouriteHandler={favouriteHandler}
             />
           </Box>
         ))}

@@ -9,6 +9,9 @@ export interface IBook {
   fileName: string;
   createdAt: Date;
   updatedAt: Date;
+  Likes:{ userId:number,
+    bookId:number,
+  }[]
 }
 
 export interface IBookCreateData {

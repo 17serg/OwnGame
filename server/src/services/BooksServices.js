@@ -76,7 +76,7 @@ class BooksService {
   }
 
   static async likeBook(bookId, userId) {
-    let like = await Like.findOne({
+    const like = await Like.findOne({
       where: {
         bookId,
         userId,
@@ -89,12 +89,48 @@ class BooksService {
         },
       });
     } else {
-      like = await Like.create({
+      await Like.create({
         bookId,
         userId,
       });
     }
-    return like;
+    const book = await Book.findOne({
+      where: {
+        id: bookId,
+      },
+      include: [Like],
+    });
+    return book;
+  }
+
+  static async readBook(bookId, userId) {
+    const like = await Like.findOne({
+      where: {
+        bookId,
+        userId,
+      },
+    });
+    if (like) {
+      if (like.isReaded) {
+        like.isReaded = false;
+      } else {
+        like.isReaded = true
+      }
+      await like.save();
+      } else {
+      await Like.create({
+        bookId,
+        userId,
+        isReaded: true
+      });
+      const book = await Book.findOne({
+        where: {
+          id: bookId,
+        },
+        include: [Like],
+      });
+      return book;
+    }
   }
 
   static async addCommentBook(bookId, authorId, text) {
