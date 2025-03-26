@@ -15,7 +15,7 @@ module.exports = {
         },
         {
           name: 'w',
-          email: 'w@2',
+          email: 'w@w',
           password: await bcrypt.hash('111111', 10),
         },
       ],

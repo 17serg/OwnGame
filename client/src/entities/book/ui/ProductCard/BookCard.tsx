@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 import { useUser } from "@/entities/user/hooks/useUser";
 import { IBook } from "../../model";
+import { useAppDispatch } from "@/shared/lib/reduxHooks";
+import { addFavouriteThunk, deleteBookThunk } from "@/features/bookSlice/thunk";
 
 const cardStyle: CSSProperties = {
   minWidth: 263,
@@ -20,15 +22,11 @@ const cardStyle: CSSProperties = {
 };
 type BookTypeProps = {
   book: IBook;
-  deleteHandler: (id: IBook["id"]) => Promise<void>;
-  favouriteHandler: (id: IBook["id"]) => Promise<void>;
 };
 
 export default function BookCard({
-  book,
-  deleteHandler,
-  favouriteHandler,
-}: BookTypeProps): React.JSX.Element {
+  book}: BookTypeProps): React.JSX.Element {
+  const dispatch = useAppDispatch()
   const { user } = useUser();
   return (
     <Card sx={cardStyle}>
@@ -43,12 +41,16 @@ export default function BookCard({
       </CardContent>
       <CardActions>
         {user && user.id === book.userId && (
-          <Button size="small" onClick={() => deleteHandler(book.id)}>
+          <Button size="small" 
+          onClick={() => dispatch(deleteBookThunk(book.id))}
+          >
             Delete
           </Button>
         )}
                 {user && (
-          <Button size="small" onClick={() => favouriteHandler(book.id)}>
+          <Button size="small" 
+          onClick={() => dispatch(addFavouriteThunk(book.id))}
+          >
             Add favourite
           </Button>
         )}

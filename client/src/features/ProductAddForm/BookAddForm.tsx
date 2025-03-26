@@ -2,23 +2,26 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { Grid2 } from "@mui/material";
-import { useBooks } from "@/entities/book/hooks/useBooks";
 import { IBook, IBookCreateData } from "@/entities/book/model";
-import { BookContext } from "@/entities/book/context/BookContext";
-import { useContext, useEffect } from "react";
+import {  useEffect } from "react";
 import { useUser } from "@/entities/user/hooks/useUser";
 import BookCard from "@/entities/book/ui/ProductCard/BookCard";
 import { Box, Paper } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "@/shared/lib/reduxHooks";
+import { loadUserBooksThunk } from "../bookSlice/thunk";
 
 export default function BookAddForm(): React.JSX.Element {
-  const books = useContext<IBook[]>(BookContext);
+  const books = useAppSelector((state) => state.books.usersBooks);
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    dispatch(loadUserBooksThunk())
+  },[])
+
   const { user } = useUser();
-      const {MyBooksHandler} = useBooks()
-      useEffect(() => {
-        MyBooksHandler(user?.id);
-      },[])
-  const { addHandler } = useBooks();
-  const { deleteHandler } = useBooks();
+      // const {MyBooksHandler} = useBooks()
+
+  // const { addHandler } = useBooks();
+  // const { deleteHandler } = useBooks();
 
   const {
     control,
@@ -34,15 +37,16 @@ export default function BookAddForm(): React.JSX.Element {
     mode: "onBlur",
   });
 
-  const onSubmit: SubmitHandler<IBookCreateData> = (data) => {
-    addHandler({
-      title: data.title,
-      description: data.description,
-      link: data.link,
-    })
-      .then(() => reset())
-      .catch(console.log);
-  };
+  // const 
+  // onSubmit: SubmitHandler<IBookCreateData> = (data) => {
+  //   addHandler({
+  //     title: data.title,
+  //     description: data.description,
+  //     link: data.link,
+  //   })
+  //     .then(() => reset())
+  //     .catch(console.log);
+  // };
 
   // const myBooks = books.filter((book) => book.userId === user?.id);
 
@@ -56,7 +60,7 @@ export default function BookAddForm(): React.JSX.Element {
         flexDirection="row"
         alignItems="center"
         gap={2}
-        onSubmit={handleSubmit(onSubmit)}
+        // onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
         <Controller
@@ -164,8 +168,7 @@ export default function BookAddForm(): React.JSX.Element {
      >
        {books.map((el) => (
          <Box p={1} key={el.id}>
-           <BookCard book={el} 
-           deleteHandler={deleteHandler}
+           <BookCard book={el}
            />
          </Box>
        ))}
