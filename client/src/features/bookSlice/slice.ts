@@ -4,9 +4,11 @@ import { createSlice } from '@reduxjs/toolkit';
 import {
   addBookThunk,
   addFavouriteThunk,
+  addReadedThunk,
   deleteBookThunk,
   loadAllBooksThunk,
   loadFavouriteBooksThunk,
+  loadReadedBooksThunk,
   loadUserBooksThunk,
 } from './thunk';
 
@@ -14,6 +16,7 @@ export type BookState = {
   books: IBook[];
   usersBooks: IBook[];
   likedUsersBooks: IBook[];
+  readedUsersBooks: IBook[];
   //   changeButton:
   //   sort: {
   //     key: 'order' | 'name';
@@ -27,6 +30,7 @@ const initialState: BookState = {
   books: [],
   usersBooks: [],
   likedUsersBooks: [],
+  readedUsersBooks: [],
   //   sort: {
   //     key: 'order',
   //     order: 'asc',
@@ -101,6 +105,27 @@ export const bookSlice = createSlice({
       .addCase(loadFavouriteBooksThunk.rejected, (state) => {
         state.isLoadingBooks = false;
       })
+      .addCase(loadReadedBooksThunk.fulfilled, (state, action) => {
+        state.readedUsersBooks = action.payload;
+        state.isLoadingBooks = false;
+      })
+      .addCase(loadReadedBooksThunk.pending, (state) => {
+        state.isLoadingBooks = true;
+      })
+      .addCase(loadReadedBooksThunk.rejected, (state) => {
+        state.isLoadingBooks = false;
+      })
+      .addCase(addBookThunk.fulfilled, (state, action) => {
+        state.usersBooks = [...state.usersBooks, action.payload];
+        state.books = [...state.books, action.payload];
+        state.isLoadingBooks = false;
+      })
+      .addCase(addBookThunk.pending, (state) => {
+        state.isLoadingBooks = true;
+      })
+      .addCase(addBookThunk.rejected, (state) => {
+        state.isLoadingBooks = false;
+      })
       .addCase(deleteBookThunk.fulfilled, (state, action) => {
         const targetBook = state.books.find((book) => book.id === action.payload);
         if (!targetBook) return;
@@ -112,28 +137,58 @@ export const bookSlice = createSlice({
         const targetBook = state.likedUsersBooks.find((book) => book.id === action.payload.bookId);
 
         if (!targetBook) {
-            const newBook = {...action.payload.data}
-            state.books = [...state.books.map((book) => book.id === action.payload.bookId ? newBook : book)]
-            state.likedUsersBooks = [...state.likedUsersBooks, newBook]
-            state.usersBooks = [...state.usersBooks.map((book) => book.id === action.payload.bookId ? newBook : book)]
+          const newBook = { ...action.payload.data };
+          state.books = [
+            ...state.books.map((book) => (book.id === action.payload.bookId ? newBook : book)),
+          ];
+          state.likedUsersBooks = [...state.likedUsersBooks, newBook];
+          state.usersBooks = [
+            ...state.usersBooks.map((book) => (book.id === action.payload.bookId ? newBook : book)),
+          ];
         } else {
           state.likedUsersBooks = state.likedUsersBooks.filter(
             (book) => book.id !== action.payload.bookId,
           );
-          state.books = [...state.books.filter((book) => book.id !== action.payload.bookId),  action.payload.data]
-          state.usersBooks = [...state.usersBooks.filter((book) => book.id !== action.payload.bookId),  action.payload.data]
+          state.books = [
+            ...state.books.filter((book) => book.id !== action.payload.bookId),
+            action.payload.data,
+          ];
+          state.usersBooks = [
+            ...state.usersBooks.filter((book) => book.id !== action.payload.bookId),
+            action.payload.data,
+          ];
         }
-        // console.log(action.payload)
       })
-      .addCase(addBookThunk.fulfilled, (state, action) => {
-        state.usersBooks = [...state.usersBooks, action.payload];
-        state.isLoadingBooks = false;
-      })
-      .addCase(addBookThunk.pending, (state) => {
-        state.isLoadingBooks = true;
-      })
-      .addCase(addBookThunk.rejected, (state) => {
-        state.isLoadingBooks = false;
+      .addCase(addReadedThunk.fulfilled, (state, action) => {
+        const targetBook = state.readedUsersBooks.find((book) => book.id === action.payload.bookId);
+
+        if (!targetBook) {
+          const newBook = { ...action.payload.data };
+          state.books = [
+            ...state.books.map((book) => (book.id === action.payload.bookId ? newBook : book)),
+          ];
+          state.likedUsersBooks = [
+            ...state.likedUsersBooks.map((book) =>
+              book.id === action.payload.bookId ? newBook : book,
+            ),
+          ];
+          state.usersBooks = [
+            ...state.usersBooks.map((book) => (book.id === action.payload.bookId ? newBook : book)),
+          ];
+        } else {
+          state.books = [
+            ...state.books.filter((book) => book.id !== action.payload.bookId),
+            action.payload.data,
+          ];
+          state.usersBooks = [
+            ...state.usersBooks.filter((book) => book.id !== action.payload.bookId),
+            action.payload.data,
+          ];
+          state.likedUsersBooks = [
+            ...state.likedUsersBooks.filter((book) => book.id !== action.payload.bookId),
+            action.payload.data,
+          ];
+        }
       });
   },
 });

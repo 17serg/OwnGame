@@ -67,6 +67,16 @@ module.exports = {
       ],
       {},
     );
+    await queryInterface.bulkInsert(
+      'Reads',
+      [
+        {
+          userId: 1,
+          bookId: 2,
+        },
+      ],
+      {},
+    );
   },
 
   async down(queryInterface, Sequelize) {

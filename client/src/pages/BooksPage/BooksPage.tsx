@@ -15,6 +15,7 @@ export function BooksPage(): React.JSX.Element {
 
   return (
     <Paper elevation={0}>
+      <h2>Favourite</h2>
       <Box
         mt={1}
         py={2}

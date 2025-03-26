@@ -1,4 +1,4 @@
-const { Book, Like,Comment,User } = require('../../db/models');
+const { Read, Book, Like,Comment,User } = require('../../db/models');
 const path = require('path');
 
 class BooksService {
@@ -6,6 +6,9 @@ class BooksService {
     return Book.findByPk(id, {
       include: [{
         model: Like,
+      },
+      {
+        model: Read,
       },
       {
         model: Comment,
@@ -18,24 +21,45 @@ class BooksService {
 
   static getAllBooks() {
     return Book.findAll({
-      include: [Like],
+      include: [{
+        model: Like,
+      },
+      {
+        model: Read,
+      }]
     });
   }
 
   static getMyBooks(userId) {
     return Book.findAll({
       where: { userId },
-      include: [Like],
+      include: [Like, Read],
     });
   }
 
   static getFavouriteBooks(userId) {
     return Book.findAll({
       // where: { userId },
-      include: {
+      include: [{
         model: Like,
         where: { userId }
       },
+      {
+        model: Read,
+      }]
+    });
+  }
+
+  static getReadedBooks(userId) {
+    return Book.findAll({
+      // where: { userId },
+      include: [{
+        model: Read,
+        where: { userId }
+      },
+      {
+        model: Like,
+      }]
     });
   }
 
@@ -98,39 +122,37 @@ class BooksService {
       where: {
         id: bookId,
       },
-      include: [Like],
+      include: [Like, Read],
     });
     return book;
   }
 
   static async readBook(bookId, userId) {
-    const like = await Like.findOne({
+    const read = await Read.findOne({
       where: {
         bookId,
         userId,
       },
     });
-    if (like) {
-      if (like.isReaded) {
-        like.isReaded = false;
-      } else {
-        like.isReaded = true
-      }
-      await like.save();
-      } else {
-      await Like.create({
+    if (read) {
+      await Read.destroy({
+        where: {
+          id: read.id,
+        },
+      });
+    } else {
+      await Read.create({
         bookId,
         userId,
-        isReaded: true
       });
-      const book = await Book.findOne({
-        where: {
-          id: bookId,
-        },
-        include: [Like],
-      });
-      return book;
     }
+    const book = await Book.findOne({
+      where: {
+        id: bookId,
+      },
+      include: [Like, Read],
+    });
+    return book;
   }
 
   static async addCommentBook(bookId, authorId, text) {

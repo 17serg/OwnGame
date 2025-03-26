@@ -20,6 +20,10 @@ export const loadUserBooksThunk = createAsyncThunk('books/loadUserBooksThunk', (
     BookApi.getFavouriteBooks(),
   );
 
+  export const loadReadedBooksThunk = createAsyncThunk('books/loadReadedBooksThunk', () =>
+    BookApi.getReadedBooks(),
+  );
+
 export const addFavouriteThunk = createAsyncThunk(
   'books/addFavouriteThunk',
   async (bookId: IBook['id']) => {

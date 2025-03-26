@@ -15,6 +15,7 @@ booksRouter.route('/:id/readBook').post(checkId, verifyAccessToken, BooksControl
 // booksRouter.route('/:id/download').get(checkId, BooksController.downloadBook);
 booksRouter.route('/my').get(verifyAccessToken, BooksController.getMy)
 booksRouter.route('/favourite').get(verifyAccessToken, BooksController.getFavourite)
+booksRouter.route('/readed').get(verifyAccessToken, BooksController.getReaded)
 
 
 module.exports = booksRouter;
