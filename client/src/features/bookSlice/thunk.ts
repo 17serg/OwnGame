@@ -2,11 +2,6 @@ import BookApi from '@/entities/book/api/BookApi';
 import { IBook, IBookCreateData } from '@/entities/book/model';
 import { IUser } from '@/entities/user/model';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-// import placeService from '../../entities/place/api/service';
-// import { addPlaceSchema } from '../../entities/place/model/schema';
-// import type { PlaceT } from '../../entities/place/model/types';
-// import userService from '../../entities/user/api/service';
-// import type { UserT } from '../../entities/user/model/types';
 
 export const loadAllBooksThunk = createAsyncThunk('books/loadAllBooksThunk', () =>
   BookApi.getBooks(),
@@ -20,9 +15,9 @@ export const loadUserBooksThunk = createAsyncThunk('books/loadUserBooksThunk', (
     BookApi.getFavouriteBooks(),
   );
 
-  export const loadReadedBooksThunk = createAsyncThunk('books/loadReadedBooksThunk', () =>
-    BookApi.getReadedBooks(),
-  );
+//   export const loadReadedBooksThunk = createAsyncThunk('books/loadReadedBooksThunk', () =>
+//     BookApi.getReadedBooks(),
+//   );
 
 export const addFavouriteThunk = createAsyncThunk(
   'books/addFavouriteThunk',

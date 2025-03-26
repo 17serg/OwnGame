@@ -20,7 +20,7 @@ type BookTypeProps = {
 export default function BookCard({ book }: BookTypeProps): React.JSX.Element {
   const dispatch = useAppDispatch();
   const { user } = useUser();
-  // console.log(book)
+  console.log(book)
   return (
     <Card sx={cardStyle}>
       <CardContent>
@@ -30,7 +30,7 @@ export default function BookCard({ book }: BookTypeProps): React.JSX.Element {
         <Typography
           style={
             book &&
-            book?.Reads?.find((el) => el.userId === user.id) && { textDecoration: 'line-through' }
+            book?.Reads?.find((el) => el.userId === user?.id) && { textDecoration: 'line-through' }
           }
           sx={{ mb: 1.5 }}
           color="text.secondary"

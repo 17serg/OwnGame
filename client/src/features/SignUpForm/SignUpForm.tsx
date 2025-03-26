@@ -9,7 +9,6 @@ import { setAccessToken } from "@/shared/lib/axiosInstance";
 export default function SignUpForm(): React.JSX.Element {
   const navigate = useNavigate();
   const { setUser } = useUser();
-
   const submitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);

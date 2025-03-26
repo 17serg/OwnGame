@@ -8,7 +8,6 @@ import {
   deleteBookThunk,
   loadAllBooksThunk,
   loadFavouriteBooksThunk,
-  loadReadedBooksThunk,
   loadUserBooksThunk,
 } from './thunk';
 
@@ -16,12 +15,11 @@ export type BookState = {
   books: IBook[];
   usersBooks: IBook[];
   likedUsersBooks: IBook[];
-  readedUsersBooks: IBook[];
-  //   changeButton:
-  //   sort: {
-  //     key: 'order' | 'name';
-  //     order: 'asc' | 'desc';
-  //   };
+//   readedUsersBooks: IBook[];
+    sort: {
+      key: 'order' | 'name';
+      order: 'asc' | 'desc';
+    };
   //   orderedPlaces: PlaceT[];
   isLoadingBooks: boolean;
 };
@@ -30,48 +28,45 @@ const initialState: BookState = {
   books: [],
   usersBooks: [],
   likedUsersBooks: [],
-  readedUsersBooks: [],
-  //   sort: {
-  //     key: 'order',
-  //     order: 'asc',
-  //   },
+//   readedUsersBooks: [],
+    sort: {
+      key: 'order',
+      order: 'asc',
+    },
   //   orderedPlaces: [],
   isLoadingBooks: false,
 };
 
-// function applySort(state: RoadmapState): void {
-//   state.orderedPlaces = state.oneUserPlaces.toSorted((a, b) => {
-//     if (state.sort.key === 'order') {
-//       return state.sort.order === 'asc' ? a.order - b.order : b.order - a.order;
-//     }
-//     return state.sort.order === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
-//   });
-// }
+function applySort(state: BookState): void {
+  state.books = state.books.toSorted((a, b) => {
+    if (state.sort.key === 'order') {
+      return state.sort.order === 'asc' ? Date.parse(a.createdAt) - Date.parse(b.createdAt) : Date.parse(b.createdAt) - Date.parse(a.createdAt);
+    }
+    return state.sort.order === 'asc' ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title);
+  });
+}
 
 export const bookSlice = createSlice({
   name: 'books',
   initialState,
   reducers: {
-    // changeSort: (state, action: PayloadAction<'order' | 'name'>) => {
-    //   if (state.sort.key === action.payload) {
-    //     state.sort.order = state.sort.order === 'asc' ? 'desc' : 'asc';
-    //   } else {
-    //     state.sort.key = action.payload;
-    //     state.sort.order = 'asc';
-    //   }
-    //   applySort(state);
-    //   //   state.orderedPlaces = state.oneUserPlaces.toSorted((a, b) => {
-    //   //     if (state.sort.key === 'order') {
-    //   //       return state.sort.order === 'asc' ? a.order - b.order : b.order - a.order;
-    //   //     }
-    //   //     return state.sort.order === 'asc'
-    //   //       ? a.name.localeCompare(b.name)
-    //   //       : b.name.localeCompare(a.name);
-    //   //   });
-    // },
-    // clearUserPlaces: (state) => {
-    //   state.oneUserPlaces = [];
-    // },
+    changeSort: (state, action: PayloadAction<'order' | 'name'>) => {
+      if (state.sort.key === action.payload) {
+        state.sort.order = state.sort.order === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.sort.key = action.payload;
+        state.sort.order = 'asc';
+      }
+      applySort(state);
+        // state.books = state.books.toSorted((a, b) => {
+        //   if (state.sort.key === 'order') {
+        //     return state.sort.order === 'asc' ? a.order - b.order : b.order - a.order;
+        //   }
+        //   return state.sort.order === 'asc'
+        //     ? a.title.localeCompare(b.title)
+        //     : b.title.localeCompare(a.title);
+        // });
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -105,16 +100,16 @@ export const bookSlice = createSlice({
       .addCase(loadFavouriteBooksThunk.rejected, (state) => {
         state.isLoadingBooks = false;
       })
-      .addCase(loadReadedBooksThunk.fulfilled, (state, action) => {
-        state.readedUsersBooks = action.payload;
-        state.isLoadingBooks = false;
-      })
-      .addCase(loadReadedBooksThunk.pending, (state) => {
-        state.isLoadingBooks = true;
-      })
-      .addCase(loadReadedBooksThunk.rejected, (state) => {
-        state.isLoadingBooks = false;
-      })
+    //   .addCase(loadReadedBooksThunk.fulfilled, (state, action) => {
+    //     state.readedUsersBooks = action.payload;
+    //     state.isLoadingBooks = false;
+    //   })
+    //   .addCase(loadReadedBooksThunk.pending, (state) => {
+    //     state.isLoadingBooks = true;
+    //   })
+    //   .addCase(loadReadedBooksThunk.rejected, (state) => {
+    //     state.isLoadingBooks = false;
+    //   })
       .addCase(addBookThunk.fulfilled, (state, action) => {
         state.usersBooks = [...state.usersBooks, action.payload];
         state.books = [...state.books, action.payload];
@@ -160,9 +155,6 @@ export const bookSlice = createSlice({
         }
       })
       .addCase(addReadedThunk.fulfilled, (state, action) => {
-        const targetBook = state.readedUsersBooks.find((book) => book.id === action.payload.bookId);
-
-        if (!targetBook) {
           const newBook = { ...action.payload.data };
           state.books = [
             ...state.books.map((book) => (book.id === action.payload.bookId ? newBook : book)),
@@ -175,25 +167,11 @@ export const bookSlice = createSlice({
           state.usersBooks = [
             ...state.usersBooks.map((book) => (book.id === action.payload.bookId ? newBook : book)),
           ];
-        } else {
-          state.books = [
-            ...state.books.filter((book) => book.id !== action.payload.bookId),
-            action.payload.data,
-          ];
-          state.usersBooks = [
-            ...state.usersBooks.filter((book) => book.id !== action.payload.bookId),
-            action.payload.data,
-          ];
-          state.likedUsersBooks = [
-            ...state.likedUsersBooks.filter((book) => book.id !== action.payload.bookId),
-            action.payload.data,
-          ];
-        }
       });
   },
 });
 
 // Action creators are generated for each case reducer function
-// export const { changeSort, clearUserPlaces } = bookSlice.actions;
+export const { changeSort } = bookSlice.actions;
 
 export default bookSlice.reducer;

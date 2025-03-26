@@ -15,10 +15,10 @@ class BookService {
     return data;
   }
 
-  async getReadedBooks(): Promise<IBook[]> {
-    const { data } = await this.client<IBook[]>("/books/readed");
-    return data;
-  }
+  // async getReadedBooks(): Promise<IBook[]> {
+  //   const { data } = await this.client<IBook[]>("/books/readed");
+  //   return data;
+  // }
 
   async getMyBooks(): Promise<IBook[]> {
     const { data } = await this.client<IBook[]>("/books/my");

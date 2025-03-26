@@ -11,7 +11,10 @@ export interface IBook {
   updatedAt: Date;
   Likes:{ userId:number,
     bookId:number,
-  }[]
+  }[];
+  Reads:{ userId:number,
+    bookId:number,
+  }[];
 }
 
 export interface IBookCreateData {
