@@ -48,6 +48,9 @@ export default function NavBar(): React.JSX.Element {
                 <NavLink to={CLIENT_ROUTES.ADDBOOK} style={styles.navLink}>
                   Добавить книгу
                 </NavLink>
+                <NavLink to={CLIENT_ROUTES.GAME} style={styles.navLink}>
+                  Игра
+                </NavLink>
               </>
             )}
             {!user && (

@@ -6,6 +6,7 @@ import { SignUpPage, LoginPage } from '@/pages';
 import { MainPage } from '@/pages/MainPage/MainPage';
 import { AddBookPage } from '@/pages/AddBookPage/AddBookPage';
 import { BooksPage } from '@/pages/BooksPage/BooksPage';
+import { GamePage } from '@/pages/GamePage/GamePage';
 import { useAppDispatch } from '@/shared/lib/reduxHooks';
 import {
   loadAllBooksThunk,
@@ -28,6 +29,7 @@ export default function RouterProvider(): React.JSX.Element {
         <Route path={CLIENT_ROUTES.ADDBOOK} element={<AddBookPage />} />
         <Route path={CLIENT_ROUTES.SIGN_UP} element={<SignUpPage />} />
         <Route path={CLIENT_ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={CLIENT_ROUTES.GAME} element={<GamePage />} />
         <Route path={CLIENT_ROUTES.NOT_FOUND} element={<h1>No content</h1>} />
       </Route>
     </Routes>
