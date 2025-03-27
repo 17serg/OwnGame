@@ -1,39 +1,27 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import { NavLink } from "react-router";
-import { useUser } from "@/entities/user/hooks/useUser";
-import { UserApi } from "@/entities/user/api/UserApi";
-import { setAccessToken } from "@/shared/lib/axiosInstance";
-import { CLIENT_ROUTES } from "@/shared/enums/clientRoutes";
-import UserCard from "@/entities/user/ui/UserCard";
+import React from 'react';
+import { Box, AppBar, Toolbar, Typography, IconButton, Button } from '@mui/material';
+import { NavLink } from 'react-router-dom';
+import { CLIENT_ROUTES } from '@/shared/enums/clientRoutes';
+import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
+import { logoutThunk } from '@/features/authSlice/authSlice';
+import UserCard from '@/entities/user/ui/UserCard';
 
 const styles = {
   navLink: {
-    color: "white",
-    marginRight: "20px",
-    textDecoration: "none",
+    color: 'white',
+    textDecoration: 'none',
+    marginRight: '20px',
   },
 };
 
 export default function NavBar(): React.JSX.Element {
-  const { user, setUser } = useUser();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
 
   const logoutHandler = async (): Promise<void> => {
-    try {
-      const response = await UserApi.logout();
-      if (response.status === 200) {
-        setUser(null);
-        setAccessToken("");
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    await dispatch(logoutThunk());
   };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -47,26 +35,28 @@ export default function NavBar(): React.JSX.Element {
           ></IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             <NavLink to="/" style={styles.navLink}>
-              {user ? `Welcome, ${user.name}` : "Guest"}
+              {user ? `Добро пожаловать, ${user.name}` : 'Гость'}
             </NavLink>
             <NavLink to={CLIENT_ROUTES.MAIN} style={styles.navLink}>
-              Main
+              Главная
             </NavLink>
-            {user && (<>
-            <NavLink to={CLIENT_ROUTES.BOOKS} style={styles.navLink}>
-              Books
-            </NavLink>
-            <NavLink to={CLIENT_ROUTES.ADDBOOK} style={styles.navLink}>
-              AddBook
-            </NavLink>
-            </>)}
+            {user && (
+              <>
+                <NavLink to={CLIENT_ROUTES.BOOKS} style={styles.navLink}>
+                  Книги
+                </NavLink>
+                <NavLink to={CLIENT_ROUTES.ADDBOOK} style={styles.navLink}>
+                  Добавить книгу
+                </NavLink>
+              </>
+            )}
             {!user && (
               <>
                 <NavLink to={CLIENT_ROUTES.SIGN_UP} style={styles.navLink}>
-                  SignUp
+                  Регистрация
                 </NavLink>
                 <NavLink to={CLIENT_ROUTES.LOGIN} style={styles.navLink}>
-                  Login
+                  Вход
                 </NavLink>
               </>
             )}
@@ -74,7 +64,7 @@ export default function NavBar(): React.JSX.Element {
           <UserCard />
           {user && (
             <Button color="inherit" onClick={logoutHandler}>
-              Logout
+              Выйти
             </Button>
           )}
         </Toolbar>

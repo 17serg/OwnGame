@@ -1,27 +1,29 @@
-import React from "react";
-import { Box, Button, TextField } from "@mui/material";
-import { useNavigate } from "react-router";
-import { useUser } from "@/entities/user/hooks/useUser";
-import { UserApi } from "@/entities/user/api/UserApi";
-import { IUserSignUpData } from "@/entities/user/model";
-import { setAccessToken } from "@/shared/lib/axiosInstance";
+import React from 'react';
+import { Box, Button, TextField } from '@mui/material';
+import { useNavigate } from 'react-router';
+import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
+import { signupThunk } from '@/features/authSlice/authSlice';
 
 export default function SignUpForm(): React.JSX.Element {
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const dispatch = useAppDispatch();
+  const { isLoading, error } = useAppSelector((state) => state.auth);
+
   const submitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const data: IUserSignUpData = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+    const data = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
     };
-    const response = await UserApi.signup(data);
-    if (response.status === 200) setUser(response.data.user);
-    setAccessToken(response.data.accessToken);
-    navigate("/");
+
+    const result = await dispatch(signupThunk(data));
+    if (signupThunk.fulfilled.match(result)) {
+      navigate('/');
+    }
   };
+
   return (
     <Box
       component="form"
@@ -32,19 +34,21 @@ export default function SignUpForm(): React.JSX.Element {
       py={5}
       onSubmit={submitHandler}
     >
-      <TextField variant="outlined" name="name" label="Name" />
+      {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+      <TextField variant="outlined" name="name" label="Имя" disabled={isLoading} />
       <br />
-      <TextField variant="outlined" name="email" label="Email" type="email" />
+      <TextField variant="outlined" name="email" label="Email" type="email" disabled={isLoading} />
       <br />
       <TextField
         variant="outlined"
         name="password"
-        label="Password"
+        label="Пароль"
         type="password"
+        disabled={isLoading}
       />
       <br />
-      <Button variant="outlined" type="submit">
-        Sign Up
+      <Button variant="outlined" type="submit" disabled={isLoading}>
+        {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
       </Button>
     </Box>
   );
