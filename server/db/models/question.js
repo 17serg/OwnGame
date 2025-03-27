@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       static associate(models) {
         Question.hasMany(models.Answer, { foreignKey: 'questionId', onDelete: 'CASCADE' });
       }
-    }
+    
   }
   Question.init({
     category: DataTypes.STRING,
