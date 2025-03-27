@@ -1,6 +1,7 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useState } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import { IQuestion } from '../model';
+import QuestionModal from './QuestionModal';
 
 const cardStyle: CSSProperties = {
   minWidth: 263,
@@ -8,7 +9,10 @@ const cardStyle: CSSProperties = {
   minHeight: 280,
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-between',
+  justifyContent: 'center',
+  alignItems: 'center',
+  cursor: 'pointer',
+  transition: 'transform 0.2s',
 };
 
 type QuestionCardProps = {
@@ -16,19 +20,37 @@ type QuestionCardProps = {
 };
 
 export default function QuestionCard({ question }: QuestionCardProps): React.JSX.Element {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCardClick = (): void => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = (): void => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <Card sx={cardStyle}>
-      <CardContent>
-        <Typography variant="h5" component="div">
-          {question.title}
-        </Typography>
-        <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          {question.description}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Ответ: {question.answer}
-        </Typography>
-      </CardContent>
-    </Card>
+    <>
+      <Card
+        sx={{
+          ...cardStyle,
+          '&:hover': {
+            transform: 'scale(1.05)',
+          },
+        }}
+        onClick={handleCardClick}
+      >
+        <CardContent>
+          <Typography variant="h2" component="div" color="primary">
+            {question.score}
+          </Typography>
+          <Typography variant="h6" component="div" color="text.secondary">
+            очков
+          </Typography>
+        </CardContent>
+      </Card>
+      <QuestionModal question={question} open={isModalOpen} onClose={handleCloseModal} />
+    </>
   );
 }
