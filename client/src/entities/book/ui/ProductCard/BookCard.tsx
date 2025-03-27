@@ -1,8 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { Button, Card, CardActions, CardContent, CardMedia, Typography } from '@mui/material';
-import { useUser } from '@/entities/user/hooks/useUser';
 import { IBook } from '../../model';
-import { useAppDispatch } from '@/shared/lib/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
 import { addFavouriteThunk, addReadedThunk, deleteBookThunk } from '@/features/bookSlice/thunk';
 
 const cardStyle: CSSProperties = {
@@ -19,8 +18,8 @@ type BookTypeProps = {
 
 export default function BookCard({ book }: BookTypeProps): React.JSX.Element {
   const dispatch = useAppDispatch();
-  const { user } = useUser();
-  console.log(book)
+  const { user } = useAppSelector((state) => state.auth);
+  console.log(book);
   return (
     <Card sx={cardStyle}>
       <CardContent>
