@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Likes', {
+    await queryInterface.createTable('Answers', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -14,23 +14,35 @@ module.exports = {
         allowNull: false,
         references: {
           model: 'Users',
-          key: 'id',
+          key: 'id'
         },
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      bookId: {
+      gameId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Books',
-          key: 'id',
+          model: 'Games',
+          key: 'id'
         },
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      isReaded: {
-        type: Sequelize.BOOLEAN,
+      questionId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: false,
+        references: {
+          model: 'Questions',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
+      },
+      chosenAnswer: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      correct: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -45,6 +57,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Likes');
+    await queryInterface.dropTable('Answers');
   }
 };
