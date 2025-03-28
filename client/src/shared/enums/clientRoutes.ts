@@ -4,5 +4,5 @@ export enum CLIENT_ROUTES {
   SIGN_UP = '/signup',
   NOT_FOUND = '*',
   GAME = '/game',
-  STATISTICS = '/game/statistics',
+  STATISTICS = '/statistics',
 }

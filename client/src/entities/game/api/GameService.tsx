@@ -37,7 +37,7 @@ class GameService {
 
   // Получение статистики игрока и таблицы лидеров
   async getGameStatistics(): Promise<IGameStatistics> {
-    const { data } = await this.client.get<IGameStatistics>('/game/statistic');
+    const { data } = await this.client.get<IGameStatistics>('/game/statistics');
     return data;
   }
 
