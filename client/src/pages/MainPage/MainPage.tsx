@@ -3,6 +3,7 @@ import { Box, Button, Typography } from "@mui/material";
 import logo from '@/assets/1674685141_grizly-club-p-svoya-igra-klipart-1.png';
 import { useNavigate } from "react-router-dom";
 import { CLIENT_ROUTES } from "@/shared/enums/clientRoutes";
+import { useAppSelector } from "@/shared/lib/reduxHooks";
 
 
 const styles = {
@@ -14,6 +15,7 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: 'rgb(1, 4, 81)',
     position: 'relative' as const,
+    textAlign: 'center'
   },
   logoContainer: {
     position: 'relative',
@@ -85,6 +87,7 @@ const styles = {
 
 export function MainPage(): React.JSX.Element {
   const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
 
   return (
     <Box sx={styles.container}>
@@ -94,23 +97,37 @@ export function MainPage(): React.JSX.Element {
         <Box sx={styles.glow3} />
         <img src={logo} alt="Своя игра" style={styles.logo} />
       </Box>
-      <Button 
-        variant="outlined" 
-        sx={styles.button}
-        style={{marginBottom:'3%',border: '3px solid rgb(245, 225, 126)',}}
-        onClick={() => navigate(CLIENT_ROUTES.LOGIN)}
-      >
-        Войти
-      </Button>
-      <Typography style={{opacity: 0.6,}} sx={styles.text}>Еще нет аккаунта?</Typography>
-      <Button 
-        variant="outlined" 
-        sx={styles.button}
-        style={{fontSize: '20px', opacity: 0.6,}}
-        onClick={() => navigate(CLIENT_ROUTES.SIGN_UP)}
-      >
-        Регистрация
-      </Button>
+
+      {user ? (
+        <div>
+          <Typography sx={styles.text}>Добро пожаловать, {user.name}!</Typography>
+          <Button
+            variant="outlined"
+            sx={styles.button}
+            onClick={() => navigate(CLIENT_ROUTES.GAME)}
+          >
+            Начать игру
+          </Button>
+        </div>
+      ) : (
+        <div>
+          <Button
+            variant="outlined"
+            sx={styles.button}
+            onClick={() => navigate(CLIENT_ROUTES.LOGIN)}
+          >
+            Войти
+          </Button>
+          <Typography style={{ opacity: 0.6 }} sx={styles.text}>Еще нет аккаунта?</Typography>
+          <Button
+            variant="outlined"
+            sx={styles.button}
+            onClick={() => navigate(CLIENT_ROUTES.SIGN_UP)}
+          >
+            Регистрация
+          </Button>
+        </div>
+      )}
     </Box>
   );
 }

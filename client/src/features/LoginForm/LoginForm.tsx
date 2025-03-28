@@ -68,6 +68,9 @@ const styles = {
   button: {
     color: 'rgb(245, 225, 126)',
     borderColor: 'rgb(245, 225, 126)',
+    padding: '12px 40px',  
+    marginTop: '20px',      
+    marginBottom: '20px',   
     '&:hover': {
       borderColor: 'rgb(245, 225, 126)',
       backgroundColor: 'rgb(1, 4, 81)',
@@ -90,7 +93,7 @@ export default function LoginForm(): React.JSX.Element {
 
     const result = await dispatch(loginThunk(data));
     if (loginThunk.fulfilled.match(result)) {
-      navigate(CLIENT_ROUTES.GAME);
+      navigate(CLIENT_ROUTES.MAIN);
     }
   };
 
