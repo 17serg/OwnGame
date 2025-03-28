@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, AppBar, Toolbar, Typography, Button } from '@mui/material';
+import { Box, AppBar, Toolbar, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import { CLIENT_ROUTES } from '@/shared/enums/clientRoutes';
 import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
@@ -20,6 +20,7 @@ const styles = {
     },
   },
   button: {
+    color: 'rgb(245, 225, 126)',
     border: '2px solid rgb(245, 225, 126)',
     borderRadius: '7px',
     padding: '4px 12px',
@@ -55,7 +56,16 @@ export default function NavBar(): React.JSX.Element {
       <AppBar position="fixed" sx={{ backgroundColor: 'rgb(1, 4, 81)', height: '84px', top: 0 }}>
         <Toolbar sx={{ height: '100%' }}>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', marginLeft: '2%', fontSize: '24px', whiteSpace: 'nowrap' }}>
-            <Box component={NavLink} to={CLIENT_ROUTES.MAIN} sx={styles.navLink}>
+            <Box 
+              component={user ? NavLink : 'div'} 
+              to={user ? CLIENT_ROUTES.GAME : CLIENT_ROUTES.LOGIN} 
+              sx={{
+                ...styles.navLink,
+                opacity: user ? 1 : 1,
+                cursor: user ? 'pointer' : 'not-allowed',
+                pointerEvents: user ? 'auto' : 'none',
+              }}
+            >
               Своя игра
             </Box>
             <Box component={NavLink} to="/" sx={{...styles.navLink, marginLeft: '66%', marginRight:'4%'}}>
@@ -72,9 +82,21 @@ export default function NavBar(): React.JSX.Element {
               </>
             )}
             {user && (
-              <Button color="inherit" onClick={logoutHandler} sx={styles.button}>
+              <Box
+                component="button"
+                onClick={logoutHandler}
+                sx={{
+                  ...styles.buttonLink,
+                  background: 'none',
+                  border: '2px solid rgb(245, 225, 126)',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: 'inherit',
+                  padding: '9px 12px',
+                }}
+              >
                 Выйти
-              </Button>
+              </Box>
             )}
           </Typography>
         </Toolbar>

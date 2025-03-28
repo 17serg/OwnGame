@@ -244,11 +244,11 @@ module.exports = {
           "category": "Даша",
           "score": 400,
           "question": "В какой группе училась Даша?",
-          "answer1": "",
+          "answer1": "Дельфины",
           "answer2": "Киты",
           "answer3": "Сойки",
-          "answer4": "",
-          "correctAnswer": ""
+          "answer4": "Бобры",
+          "correctAnswer": "Сойки"
         },
         {
           "category": "Даша",
@@ -258,7 +258,7 @@ module.exports = {
           "answer2": "Программист",
           "answer3": "Юрист",
           "answer4": "Химик",
-          "correctAnswer": ""
+          "correctAnswer": "Химик"
         },
       
         {
