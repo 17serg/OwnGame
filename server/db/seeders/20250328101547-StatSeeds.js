@@ -46,28 +46,28 @@ module.exports = {
       [
         {
           userId: 1, // ID Сергея (замените на реальный ID после добавления пользователей)
-          score: 150,
+          score: 5500,
           status: 'completed',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           userId: 2, // ID Макса
-          score: 200,
+          score: 2000,
           status: 'completed',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           userId: 3, // ID Вики
-          score: 180,
+          score: 5000,
           status: 'completed',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           userId: 1, // ID Сергея
-          score: 130,
+          score: 2700,
           status: 'completed',
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -81,7 +81,7 @@ module.exports = {
         },
         {
           userId: 3, // ID Вики
-          score: 190,
+          score: 1900,
           status: 'completed',
           createdAt: new Date(),
           updatedAt: new Date(),
