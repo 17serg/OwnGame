@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Paper, Typography, Button, Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import QuestionCard from '@/entities/question/ui/QuestionCard';
@@ -81,6 +81,32 @@ const styles = {
       },
     },
   },
+  scoreContainer: {
+    position: 'fixed',
+    top: '100px',
+    right: '20px',
+    backgroundColor: 'rgb(75,107,222)',
+    padding: '15px 30px',
+    borderRadius: '10px',
+    border: '2px solid rgb(245, 225, 126)',
+    zIndex: 1000,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  scoreText: {
+    color: 'rgb(245, 225, 126)',
+    fontSize: '24px',
+    fontWeight: 'bold',
+  },
+  finishButton: {
+    backgroundColor: 'rgb(75,107,222)',
+    color: 'rgb(245, 225, 126)',
+    border: '2px solid rgb(245, 225, 126)',
+    '&:hover': {
+      backgroundColor: 'rgb(60,90,200)',
+    },
+  },
 };
 
 export function GamePage(): React.JSX.Element {
@@ -90,6 +116,14 @@ export function GamePage(): React.JSX.Element {
   const { user } = useAppSelector((state) => state.auth);
   const { game } = useAppSelector((state) => state.game);
   const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
+  const [currentScore, setCurrentScore] = useState(0);
+
+  // Инициализируем счетчик значением из текущей игры
+  useEffect(() => {
+    if (game?.score) {
+      setCurrentScore(game.score);
+    }
+  }, [game?.score]);
 
   // Проверяем, все ли вопросы отвечены
   const isAllQuestionsAnswered = useMemo(() => {
@@ -132,6 +166,7 @@ export function GamePage(): React.JSX.Element {
   }, [isAllQuestionsAnswered, game]);
 
   const handleCorrectAnswer = (score: number): void => {
+    setCurrentScore((prevScore) => prevScore + score);
     if (game) {
       const newScore = (game.score || 0) + score;
       dispatch(updateGameScore({ gameId: game.id, score: newScore }));
@@ -167,10 +202,17 @@ export function GamePage(): React.JSX.Element {
 
   return (
     <Box sx={styles.container}>
-      <Typography sx={styles.title}>
-        Выберите карточку с вопросом
-      </Typography>
-      <Paper sx={styles.paper}>
+      {/* Счетчик очков и кнопка завершения */}
+      <Box sx={styles.scoreContainer}>
+        <Typography sx={styles.scoreText}>Счет: {currentScore}</Typography>
+        {game?.status === 'active' && (
+          <Button variant="contained" onClick={handleFinishGame} sx={styles.finishButton}>
+            Завершить игру
+          </Button>
+        )}
+      </Box>
+
+      <Paper elevation={0} sx={styles.paper}>
         {Object.entries(questionsByCategory).map(([category, categoryQuestions]) => (
           <Box key={category} sx={styles.categoryContainer}>
             <Typography sx={styles.categoryTitle}>{category}</Typography>
@@ -180,9 +222,7 @@ export function GamePage(): React.JSX.Element {
                   key={question.id}
                   question={question}
                   onCorrectAnswer={handleCorrectAnswer}
-                  isAnswered={game?.answers?.some(
-                    (answer) => answer.questionId === question.id,
-                  )}
+                  isAnswered={game?.answers?.some((answer) => answer.questionId === question.id)}
                 />
               ))}
             </Box>
