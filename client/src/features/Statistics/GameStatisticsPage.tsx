@@ -33,12 +33,12 @@ const styles = {
   paper: {
     padding: '20px',
     marginBottom: '20px',
-    backgroundColor: 'transparent', 
-    border: '3px solid rgb(245, 225, 126)', 
+    backgroundColor: 'transparent',
+    border: '3px solid rgb(245, 225, 126)',
     borderRadius: '8px',
   },
   tableCell: {
-    color: 'rgb(245, 225, 126)', 
+    color: 'rgb(245, 225, 126)',
     fontWeight: 'bold',
   },
   tableCellValue: {
@@ -49,8 +49,7 @@ const styles = {
     color: 'rgb(245, 225, 126)', // Устанавливаем желтый цвет для текста в таблице
   },
   tableRow: {
-    color: 'rgb(245, 225, 126)', 
-    
+    color: 'rgb(245, 225, 126)',
   },
   tableHeader: {
     color: 'rgb(245, 225, 126)', // Устанавливаем желтый цвет для текста заголовка
@@ -147,23 +146,25 @@ const GameStatisticsPage: React.FC = () => {
           <Typography variant="h5" gutterBottom sx={{ color: 'rgb(245, 225, 126)' }}>
             Таблица лидеров
           </Typography>
-          <TableContainer sx={styles.leaderboardTable}>
+          <TableContainer>
             <Table>
               <TableHead>
-                <TableRow sx={styles.tableHeader}>
-                  <TableCell sx={styles.tableHeadCell}>Место</TableCell>
-                  <TableCell sx={styles.tableHeadCell}>Игрок</TableCell>
-                  <TableCell align="right" sx={styles.tableHeadCell}>
+                <TableRow>
+                  <TableCell sx={styles.tableCell}>Место</TableCell>
+                  <TableCell sx={styles.tableCell}>Игрок</TableCell>
+                  <TableCell align="right" sx={styles.tableCell}>
                     Счет
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {statistics.leaderboard.map((player: ILeaderboardEntry, index: number) => (
-                  <TableRow key={index} sx={styles.tableRow}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{player.username}</TableCell>
-                    <TableCell align="right">{player.totalScore} очков</TableCell>
+                  <TableRow key={index}>
+                    <TableCell sx={styles.tableCellValue}>{index + 1}</TableCell>
+                    <TableCell sx={styles.tableCellValue}>{player.username}</TableCell>
+                    <TableCell align="right" sx={styles.tableCellValue}>
+                      {player.totalScore} очков
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
