@@ -52,6 +52,7 @@ export interface IUserStats {
   completedGames: number;
   totalScore: number;
   averageScore: string;
+  bestScore: number;
 }
 
 export interface ILeaderboardEntry {

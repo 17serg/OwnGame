@@ -1,6 +1,7 @@
 const gamesRouter = require('express').Router();
 const { verifyAccessToken } = require('../middlewares/verifyTokens');
 const { Game, Question, User, Answer } = require('../../db/models');
+const { sequelize } = require('../../db/models');
 
 // Получение всех вопросов
 gamesRouter.get('/questions', verifyAccessToken, async (req, res) => {
@@ -178,6 +179,7 @@ gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
     // 1. Статистика текущего игрока
     const userGames = await Game.findAll({
       where: { userId },
+      raw: true,
     });
     console.log('User games found:', userGames.length);
 
@@ -196,31 +198,40 @@ gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
 
     const totalGames = userGames.length;
     const completedGames = userGames.filter((game) => game.status === 'completed').length;
-    const totalScore = userGames.reduce((sum, game) => sum + (game.score || 0), 0);
-    const averageScore = totalGames > 0 ? (totalScore / totalGames).toFixed(2) : '0';
+    const totalScore = userGames
+      .filter((game) => game.status === 'completed')
+      .reduce((sum, game) => sum + (Number(game.score) || 0), 0);
+    const averageScore =
+      completedGames > 0 ? (totalScore / completedGames).toFixed(2) : '0';
+
+    // Находим лучший счет из завершенных игр
+    const bestScore = userGames
+      .filter((game) => game.status === 'completed')
+      .reduce((max, game) => Math.max(max, Number(game.score) || 0), 0);
 
     console.log('User stats calculated:', {
       totalGames,
       completedGames,
       totalScore,
       averageScore,
+      bestScore,
     });
 
     // 2. Таблица лидеров (ТОП-10 игроков по сумме очков)
     const leaderboard = await Game.findAll({
-      attributes: [
-        'userId',
-        [Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'totalScore'],
-      ],
+      attributes: ['userId', [sequelize.fn('SUM', sequelize.col('score')), 'totalScore']],
+      where: {
+        status: 'completed',
+      },
       include: [
         {
           model: User,
-          attributes: ['username'],
+          attributes: ['name'],
           required: true,
         },
       ],
-      group: ['Game.userId', 'User.id', 'User.username'],
-      order: [[Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'DESC']],
+      group: ['Game.userId', 'User.id', 'User.name'],
+      order: [[sequelize.fn('SUM', sequelize.col('score')), 'DESC']],
       limit: 10,
       raw: true,
       nest: true,
@@ -229,7 +240,7 @@ gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
     console.log('Leaderboard fetched:', leaderboard);
 
     const topPlayers = leaderboard.map((entry) => ({
-      username: entry.User.username,
+      username: entry.User.name,
       totalScore: parseInt(entry.totalScore || 0, 10),
     }));
 
@@ -240,6 +251,7 @@ gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
         completedGames,
         totalScore,
         averageScore,
+        bestScore,
       },
       leaderboard: topPlayers,
     };
@@ -248,7 +260,11 @@ gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error('Error fetching statistics:', error);
-    res.status(500).json({ message: 'Failed to fetch statistics' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({
+      message: 'Failed to fetch statistics',
+      error: error.message,
+    });
   }
 });
 
