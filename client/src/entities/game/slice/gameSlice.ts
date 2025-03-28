@@ -1,56 +1,65 @@
-import { createSlice, createAsyncThunk, PayloadAction, ActionReducerMapBuilder, AsyncThunk } from "@reduxjs/toolkit";
-import { IGame, IGameStatistics, IGameStatus } from "../model";
-import GameService from "../api/GameService";
+import {
+  createSlice,
+  createAsyncThunk,
+  PayloadAction,
+  ActionReducerMapBuilder,
+  AsyncThunk,
+} from '@reduxjs/toolkit';
+import { IGame, IGameStatistics, IGameStatus } from '../model';
+import GameService from '../api/GameService';
 
 // Асинхронные действия для работы с API
 export const createGame = createAsyncThunk<IGame, number>(
-  "game/createGame",
+  'game/createGame',
   async (userId: number) => {
     const game = await GameService.createGame(userId);
     return game;
-  }
+  },
 );
 
 export const getGameStatus = createAsyncThunk<IGameStatus, number>(
-  "game/getGameStatus",
+  'game/getGameStatus',
   async (gameId: number) => {
     const status = await GameService.getGameStatus(gameId);
     return status;
-  }
+  },
 );
 
 export const updateGameScore = createAsyncThunk<IGame, { gameId: number; score: number }>(
-  "game/updateGameScore",
+  'game/updateGameScore',
   async ({ gameId, score }) => {
     const updatedGame = await GameService.updateGameScore(gameId, score);
     return updatedGame;
-  }
+  },
 );
 
 export const finishGame = createAsyncThunk<IGame, number>(
-  "game/finishGame",
+  'game/finishGame',
   async (gameId: number) => {
     const finishedGame = await GameService.finishGame(gameId);
     return finishedGame;
-  }
+  },
 );
 
 export const getUserGames = createAsyncThunk<IGame[], number>(
-  "game/getUserGames",
+  'game/getUserGames',
   async (userId: number) => {
     const games = await GameService.getUserGames(userId);
     return games;
-  }
+  },
 );
 
 // Добавляем асинхронный экшен для получения статистики
 export const fetchGameStatistics = createAsyncThunk<IGameStatistics>(
-  "game/fetchGameStatistics",
+  'game/fetchGameStatistics',
   async () => {
     return await GameService.getGameStatistics();
-  }
+  },
 );
 
+export const getActiveGame = createAsyncThunk<IGame | null>('game/getActiveGame', async () => {
+  return await GameService.getActiveGame();
+});
 
 // Определение начального состояния
 interface GameState {
@@ -74,8 +83,9 @@ const initialState: GameState = {
 const handleAsyncActions = <T, K extends keyof GameState>(
   builder: ActionReducerMapBuilder<GameState>,
   action: AsyncThunk<T, any, any>, // Убираем unexpected any
-  key: K
-): void => { // Добавляем return type (void)
+  key: K,
+): void => {
+  // Добавляем return type (void)
   builder
     .addCase(action.pending, (state) => {
       state.loading = true;
@@ -91,16 +101,17 @@ const handleAsyncActions = <T, K extends keyof GameState>(
 };
 
 const gameSlice = createSlice({
-  name: "game",
+  name: 'game',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    handleAsyncActions(builder, createGame, "game");
-    handleAsyncActions(builder, getGameStatus, "gameStatus");
-    handleAsyncActions(builder, updateGameScore, "game");
-    handleAsyncActions(builder, finishGame, "game");
-    handleAsyncActions(builder, getUserGames, "games");
-    handleAsyncActions(builder, fetchGameStatistics, "statistics");
+    handleAsyncActions(builder, createGame, 'game');
+    handleAsyncActions(builder, getGameStatus, 'gameStatus');
+    handleAsyncActions(builder, updateGameScore, 'game');
+    handleAsyncActions(builder, finishGame, 'game');
+    handleAsyncActions(builder, getUserGames, 'games');
+    handleAsyncActions(builder, fetchGameStatistics, 'statistics');
+    handleAsyncActions(builder, getActiveGame, 'game');
   },
 });
 
