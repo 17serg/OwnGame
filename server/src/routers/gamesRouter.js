@@ -1,7 +1,7 @@
 const gamesRouter = require('express').Router();
 const checkId = require('../middlewares/checkId');
 const { verifyAccessToken } = require('../middlewares/verifyTokens');
-const { Game, Question } = require('../../db/models'); // Импортируем модели Game и Question
+const { Game, Question, User } = require('../../db/models'); 
 
 // Получение всех вопросов
 gamesRouter.get('/questions', verifyAccessToken, async (req, res) => {
@@ -160,4 +160,59 @@ gamesRouter.get('/', verifyAccessToken, async (req, res) => {
   }
 });
 
-module.exports = gamesRouter; // Экспортируем gamesRouter
+
+
+// Получение статистики текущего игрока и таблицы лидеров
+gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
+  const { userId } = res.locals.user; // Получаем ID пользователя из токена
+
+  try {
+    // 1. Статистика текущего игрока
+    const userGames = await Game.findAll({ where: { userId } });
+
+    if (!userGames.length) {
+      return res.status(404).json({ message: 'У пользователя нет игр' });
+    }
+
+    const totalGames = userGames.length;
+    const completedGames = userGames.filter(game => game.status === 'completed').length;
+    const totalScore = userGames.reduce((sum, game) => sum + game.score, 0);
+    const averageScore = totalGames > 0 ? (totalScore / totalGames).toFixed(2) : 0;
+
+    const userStats = {
+      totalGames,       // Всего игр
+      completedGames,   // Завершённых игр
+      totalScore,       // Общий счёт
+      averageScore,     // Средний счёт
+    };
+
+    // 2. Таблица лидеров (ТОП-10 игроков по сумме очков)
+    const leaderboard = await Game.findAll({
+      attributes: ['userId', [Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'totalScore']],
+      group: ['userId'],
+      include: [{ model: User, attributes: ['id', 'username'] }], // Присоединяем пользователей
+      order: [[Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'DESC']], // Сортировка по очкам
+      limit: 10,
+    });
+
+    const topPlayers = leaderboard.map(({ user, dataValues }) => ({
+      userId: user.id,
+      username: user.username,
+      totalScore: dataValues.totalScore,
+    }));
+
+    // Отправляем ответ
+    res.json({
+      userStats,
+      leaderboard: topPlayers,
+    });
+  } catch (error) {
+    console.error('Ошибка при получении статистики:', error);
+    res.status(500).json({ message: 'Ошибка при получении статистики' });
+  }
+});
+
+module.exports = gamesRouter;
+
+
+module.exports = gamesRouter; 

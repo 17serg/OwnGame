@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { IGame, IGameStatus } from "../model";
+import { createSlice, createAsyncThunk, PayloadAction, ActionReducerMapBuilder, AsyncThunk } from "@reduxjs/toolkit";
+import { IGame, IGameStatistics, IGameStatus } from "../model";
 import GameService from "../api/GameService";
 
 // Асинхронные действия для работы с API
@@ -43,11 +43,21 @@ export const getUserGames = createAsyncThunk<IGame[], number>(
   }
 );
 
+// Добавляем асинхронный экшен для получения статистики
+export const fetchGameStatistics = createAsyncThunk<IGameStatistics>(
+  "game/fetchGameStatistics",
+  async () => {
+    return await GameService.getGameStatistics();
+  }
+);
+
+
 // Определение начального состояния
 interface GameState {
   game: IGame | null;
   gameStatus: IGameStatus | null;
   games: IGame[];
+  statistics: IGameStatistics | null;
   loading: boolean;
   error: string | null;
 }
@@ -56,77 +66,122 @@ const initialState: GameState = {
   game: null,
   gameStatus: null,
   games: [],
+  statistics: null,
   loading: false,
   error: null,
 };
 
-// Создание слайса
+const handleAsyncActions = <T, K extends keyof GameState>(
+  builder: ActionReducerMapBuilder<GameState>,
+  action: AsyncThunk<T, any, any>, // Убираем unexpected any
+  key: K
+): void => { // Добавляем return type (void)
+  builder
+    .addCase(action.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(action.fulfilled, (state, action: PayloadAction<T>) => {
+      state.loading = false;
+      state[key] = action.payload as GameState[K]; // Убираем ошибку с never
+    })
+    .addCase(action.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message || `Failed to fetch ${String(key)}`;
+    });
+};
+
 const gameSlice = createSlice({
   name: "game",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      .addCase(createGame.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(createGame.fulfilled, (state, action: PayloadAction<IGame>) => {
-        state.loading = false;
-        state.game = action.payload;
-      })
-      .addCase(createGame.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to create game";
-      })
-
-      .addCase(getGameStatus.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(getGameStatus.fulfilled, (state, action: PayloadAction<IGameStatus>) => {
-        state.loading = false;
-        state.gameStatus = action.payload;
-      })
-      .addCase(getGameStatus.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to fetch game status";
-      })
-
-      .addCase(updateGameScore.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(updateGameScore.fulfilled, (state, action: PayloadAction<IGame>) => {
-        state.loading = false;
-        state.game = action.payload;
-      })
-      .addCase(updateGameScore.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to update score";
-      })
-
-      .addCase(finishGame.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(finishGame.fulfilled, (state, action: PayloadAction<IGame>) => {
-        state.loading = false;
-        state.game = action.payload;
-      })
-      .addCase(finishGame.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to finish game";
-      })
-
-      .addCase(getUserGames.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(getUserGames.fulfilled, (state, action: PayloadAction<IGame[]>) => {
-        state.loading = false;
-        state.games = action.payload;
-      })
-      .addCase(getUserGames.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to fetch user games";
-      });
+    handleAsyncActions(builder, createGame, "game");
+    handleAsyncActions(builder, getGameStatus, "gameStatus");
+    handleAsyncActions(builder, updateGameScore, "game");
+    handleAsyncActions(builder, finishGame, "game");
+    handleAsyncActions(builder, getUserGames, "games");
+    handleAsyncActions(builder, fetchGameStatistics, "statistics");
   },
 });
+
+// Создание слайса
+// const gameSlice = createSlice({
+//   name: "game",
+//   initialState,
+//   reducers: {},
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(createGame.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(createGame.fulfilled, (state, action: PayloadAction<IGame>) => {
+//         state.loading = false;
+//         state.game = action.payload;
+//       })
+//       .addCase(createGame.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.error.message || "Failed to create game";
+//       })
+
+//       .addCase(getGameStatus.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(getGameStatus.fulfilled, (state, action: PayloadAction<IGameStatus>) => {
+//         state.loading = false;
+//         state.gameStatus = action.payload;
+//       })
+//       .addCase(getGameStatus.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.error.message || "Failed to fetch game status";
+//       })
+
+//       .addCase(updateGameScore.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(updateGameScore.fulfilled, (state, action: PayloadAction<IGame>) => {
+//         state.loading = false;
+//         state.game = action.payload;
+//       })
+//       .addCase(updateGameScore.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.error.message || "Failed to update score";
+//       })
+
+//       .addCase(finishGame.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(finishGame.fulfilled, (state, action: PayloadAction<IGame>) => {
+//         state.loading = false;
+//         state.game = action.payload;
+//       })
+//       .addCase(finishGame.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.error.message || "Failed to finish game";
+//       })
+
+//       .addCase(getUserGames.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(getUserGames.fulfilled, (state, action: PayloadAction<IGame[]>) => {
+//         state.loading = false;
+//         state.games = action.payload;
+//       })
+//       .addCase(getUserGames.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.error.message || "Failed to fetch user games";
+//       })
+//       .addCase(fetchGameStatistics.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(fetchGameStatistics.fulfilled, (state, action: PayloadAction<IGameStatistics>) => {
+//         state.loading = false;
+//         state.statistics = action.payload;
+//       })
+//       .addCase(fetchGameStatistics.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.error.message || "Failed to fetch game statistics";
+//       });
+//   },
+// });
 
 export default gameSlice.reducer;

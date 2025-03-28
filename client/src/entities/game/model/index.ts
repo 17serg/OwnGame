@@ -45,3 +45,21 @@ export interface IAnswer {
   createdAt: string; // Дата и время, когда был дан ответ
   updatedAt: string; // Дата последнего обновления ответа
 }
+
+export interface IUserStats {
+  totalGames: number;
+  completedGames: number;
+  totalScore: number;
+  averageScore: string;
+}
+
+export interface ILeaderboardEntry {
+  userId: number;
+  username: string;
+  totalScore: number;
+}
+
+export interface IGameStatistics {
+  userStats: IUserStats;
+  leaderboard: ILeaderboardEntry[];
+}

@@ -58,6 +58,9 @@ export default function NavBar(): React.JSX.Element {
             <Box component={NavLink} to={CLIENT_ROUTES.MAIN} sx={styles.navLink}>
               Своя игра
             </Box>
+            <Box component={NavLink} to={CLIENT_ROUTES.STATISTICS} sx={styles.navLink}>
+              Статистика
+            </Box>
             <Box component={NavLink} to="/" sx={{...styles.navLink, marginLeft: '66%', marginRight:'4%'}}>
               {user ? `Добро пожаловать, ${user.name}` : 'Гость'}
             </Box>
