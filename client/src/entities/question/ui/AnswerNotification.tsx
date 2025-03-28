@@ -55,7 +55,7 @@ export default function AnswerNotification({
         }
       }}
     >
-      <Alert onClose={onClose} severity={isCorrect ? 'success' : 'error'} sx={styles.notification}>
+      <Alert onClose={onClose} severity={isCorrect ? 'success' : 'error'} sx={{...styles.notification, width: '200px'}}>
         {message || (isCorrect ? 'Правильный ответ!' : 'Неправильный ответ!')}
       </Alert>
     </Snackbar>
