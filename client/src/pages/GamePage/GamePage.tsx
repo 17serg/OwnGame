@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Paper, Typography, Button, Snackbar, Alert } from '@mui/material';
+import { Box, Paper, Typography, Button, Snackbar, Alert, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import QuestionCard from '@/entities/question/ui/QuestionCard';
 import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
 import { loadQuestionsThunk } from '@/features/questionSlice/questionSlice';
@@ -13,6 +15,7 @@ import {
 import { IQuestion } from '@/entities/question/model';
 import { IGame } from '@/entities/game/model';
 import { AxiosError } from 'axios';
+import SoundManager from '@/shared/lib/SoundManager';
 
 const styles = {
   container: {
@@ -114,6 +117,16 @@ export function GamePage(): React.JSX.Element {
   const { game } = useAppSelector((state) => state.game);
   const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
   const [currentScore, setCurrentScore] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const soundManager = SoundManager.getInstance();
+
+  // Инициализация звуков
+  useEffect(() => {
+    soundManager.playBackgroundMusic();
+    return () => {
+      soundManager.stopBackgroundMusic();
+    };
+  }, []);
 
   // Инициализируем счетчик значением из текущей игры
   useEffect(() => {
@@ -163,6 +176,7 @@ export function GamePage(): React.JSX.Element {
   }, [isAllQuestionsAnswered, game]);
 
   const handleCorrectAnswer = (score: number): void => {
+    soundManager.playCorrectAnswerSound();
     setCurrentScore((prevScore) => prevScore + score);
     if (game) {
       const newScore = (game.score || 0) + score;
@@ -175,7 +189,7 @@ export function GamePage(): React.JSX.Element {
       try {
         await dispatch(finishGame(game.id)).unwrap();
         setShowSuccessAlert(true);
-        // Редирект через 2 секунды после успешного завершения
+        soundManager.stopBackgroundMusic();
         setTimeout(() => {
           navigate('/statistics');
         }, 2000);
@@ -183,6 +197,11 @@ export function GamePage(): React.JSX.Element {
         console.error('Error finishing game:', error);
       }
     }
+  };
+
+  const handleToggleMute = () => {
+    soundManager.toggleMute();
+    setIsMuted(soundManager.isSoundMuted());
   };
 
   // Группируем вопросы по категориям
@@ -201,7 +220,12 @@ export function GamePage(): React.JSX.Element {
     <Box sx={styles.container}>
       {/* Счетчик очков и кнопка завершения */}
       <Box sx={styles.scoreContainer}>
-        <Typography sx={styles.scoreText}>Счет: {currentScore}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography sx={styles.scoreText}>Счет: {currentScore}</Typography>
+          <IconButton onClick={handleToggleMute} sx={{ color: 'rgb(245, 225, 126)' }}>
+            {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+          </IconButton>
+        </Box>
         {game?.status === 'active' && (
           <Button variant="contained" onClick={handleFinishGame} sx={styles.finishButton}>
             Завершить игру
