@@ -4,6 +4,7 @@ import logo from '@/assets/1674685141_grizly-club-p-svoya-igra-klipart-1.png';
 import { useNavigate } from "react-router-dom";
 import { CLIENT_ROUTES } from "@/shared/enums/clientRoutes";
 
+
 const styles = {
   container: {
     display: 'flex',

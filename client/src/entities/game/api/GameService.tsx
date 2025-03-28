@@ -1,5 +1,5 @@
 import type { AxiosInstance } from "axios";
-import { IGame, IGameStatus } from "../model"
+import { IGame, IGameStatistics, IGameStatus } from "../model"
 import { axiosInstance } from "@/shared/lib/axiosInstance";
 
 class GameService {
@@ -34,6 +34,12 @@ class GameService {
     const { data } = await this.client.get<IGame[]>(`/games/user/${userId}`);
     return data;
   }
+
+ // Получение статистики игрока и таблицы лидеров
+ async getGameStatistics(): Promise<IGameStatistics> {
+  const { data } = await this.client.get<IGameStatistics>("/game/statistic");
+  return data;
+}
 }
 
 export default new GameService(axiosInstance);
