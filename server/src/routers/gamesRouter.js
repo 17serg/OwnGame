@@ -171,27 +171,40 @@ gamesRouter.get('/', verifyAccessToken, async (req, res) => {
 
 // Получение статистики текущего игрока и таблицы лидеров
 gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
-  const { userId } = res.locals.user; // Получаем ID пользователя из токена
-
   try {
-    // 1. Статистика текущего игрока
-    const userGames = await Game.findAll({ where: { userId } });
+    const { id: userId } = res.locals.user;
+    console.log('Fetching statistics for user:', userId);
 
+    // 1. Статистика текущего игрока
+    const userGames = await Game.findAll({
+      where: { userId },
+    });
+    console.log('User games found:', userGames.length);
+
+    // Если у пользователя нет игр, возвращаем пустую статистику
     if (!userGames.length) {
-      return res.status(403).json({ message: 'У пользователя нет игр' });
+      return res.json({
+        userStats: {
+          totalGames: 0,
+          completedGames: 0,
+          totalScore: 0,
+          averageScore: '0',
+        },
+        leaderboard: [],
+      });
     }
 
     const totalGames = userGames.length;
     const completedGames = userGames.filter((game) => game.status === 'completed').length;
-    const totalScore = userGames.reduce((sum, game) => sum + game.score, 0);
-    const averageScore = totalGames > 0 ? (totalScore / totalGames).toFixed(2) : 0;
+    const totalScore = userGames.reduce((sum, game) => sum + (game.score || 0), 0);
+    const averageScore = totalGames > 0 ? (totalScore / totalGames).toFixed(2) : '0';
 
-    const userStats = {
-      totalGames, // Всего игр
-      completedGames, // Завершённых игр
-      totalScore, // Общий счёт
-      averageScore, // Средний счёт
-    };
+    console.log('User stats calculated:', {
+      totalGames,
+      completedGames,
+      totalScore,
+      averageScore,
+    });
 
     // 2. Таблица лидеров (ТОП-10 игроков по сумме очков)
     const leaderboard = await Game.findAll({
@@ -199,26 +212,43 @@ gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
         'userId',
         [Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'totalScore'],
       ],
-      group: ['userId'],
-      include: [{ model: User, attributes: ['id', 'username'] }], // Присоединяем пользователей
-      order: [[Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'DESC']], // Сортировка по очкам
+      include: [
+        {
+          model: User,
+          attributes: ['username'],
+          required: true,
+        },
+      ],
+      group: ['Game.userId', 'User.id', 'User.username'],
+      order: [[Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'DESC']],
       limit: 10,
+      raw: true,
+      nest: true,
     });
 
-    const topPlayers = leaderboard.map(({ user, dataValues }) => ({
-      userId: user.id,
-      username: user.username,
-      totalScore: dataValues.totalScore,
+    console.log('Leaderboard fetched:', leaderboard);
+
+    const topPlayers = leaderboard.map((entry) => ({
+      username: entry.User.username,
+      totalScore: parseInt(entry.totalScore || 0, 10),
     }));
 
     // Отправляем ответ
-    res.json({
-      userStats,
+    const response = {
+      userStats: {
+        totalGames,
+        completedGames,
+        totalScore,
+        averageScore,
+      },
       leaderboard: topPlayers,
-    });
+    };
+
+    console.log('Sending response:', response);
+    res.json(response);
   } catch (error) {
-    console.error('Ошибка при получении статистики:', error);
-    res.status(500).json({ message: 'Ошибка при получении статистики' });
+    console.error('Error fetching statistics:', error);
+    res.status(500).json({ message: 'Failed to fetch statistics' });
   }
 });
 
