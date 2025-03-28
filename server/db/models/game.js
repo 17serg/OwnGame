@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Game extends Model {
     /**
@@ -14,13 +13,16 @@ module.exports = (sequelize, DataTypes) => {
       Game.hasMany(models.Answer, { foreignKey: 'gameId', onDelete: 'CASCADE' });
     }
   }
-  Game.init({
-    userId: DataTypes.UUID,
-    score: DataTypes.INTEGER,
-    status: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Game',
-  });
+  Game.init(
+    {
+      userId: DataTypes.INTEGER,
+      score: DataTypes.INTEGER,
+      status: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: 'Game',
+    },
+  );
   return Game;
 };

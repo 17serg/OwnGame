@@ -1,7 +1,6 @@
 const gamesRouter = require('express').Router();
-const checkId = require('../middlewares/checkId');
 const { verifyAccessToken } = require('../middlewares/verifyTokens');
-const { Game, Question, User } = require('../../db/models'); 
+const { Game, Question, User, Answer } = require('../../db/models');
 
 // Получение всех вопросов
 gamesRouter.get('/questions', verifyAccessToken, async (req, res) => {
@@ -17,15 +16,25 @@ gamesRouter.get('/questions', verifyAccessToken, async (req, res) => {
 // Создание новой игры
 gamesRouter.post('/create', verifyAccessToken, async (req, res) => {
   try {
-    const { userId } = res.locals.user; // Извлекаем userId из res.locals.user, который добавляется после верификации токена
+    console.log('User from token:', res.locals.user);
+
+    if (!res.locals.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const { id } = res.locals.user; // Меняем userId на id
+    if (!id) {
+      console.log('No user ID found in:', res.locals.user);
+      return res.status(400).json({ message: 'User ID is required' });
+    }
 
     const game = await Game.create({
-      userId,
-      score: 0, // Начальный счёт
-      status: 'active', // Статус игры - активная
+      userId: id, // Используем id вместо userId
+      score: 0,
+      status: 'active',
     });
 
-    res.status(201).json(game); // Отправляем созданную игру
+    res.status(201).json(game);
   } catch (error) {
     console.log('Error creating game:', error);
     res.status(500).json({ message: 'Failed to create game' });
@@ -160,8 +169,6 @@ gamesRouter.get('/', verifyAccessToken, async (req, res) => {
   }
 });
 
-
-
 // Получение статистики текущего игрока и таблицы лидеров
 gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
   const { userId } = res.locals.user; // Получаем ID пользователя из токена
@@ -171,24 +178,27 @@ gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
     const userGames = await Game.findAll({ where: { userId } });
 
     if (!userGames.length) {
-      return res.status(404).json({ message: 'У пользователя нет игр' });
+      return res.status(403).json({ message: 'У пользователя нет игр' });
     }
 
     const totalGames = userGames.length;
-    const completedGames = userGames.filter(game => game.status === 'completed').length;
+    const completedGames = userGames.filter((game) => game.status === 'completed').length;
     const totalScore = userGames.reduce((sum, game) => sum + game.score, 0);
     const averageScore = totalGames > 0 ? (totalScore / totalGames).toFixed(2) : 0;
 
     const userStats = {
-      totalGames,       // Всего игр
-      completedGames,   // Завершённых игр
-      totalScore,       // Общий счёт
-      averageScore,     // Средний счёт
+      totalGames, // Всего игр
+      completedGames, // Завершённых игр
+      totalScore, // Общий счёт
+      averageScore, // Средний счёт
     };
 
     // 2. Таблица лидеров (ТОП-10 игроков по сумме очков)
     const leaderboard = await Game.findAll({
-      attributes: ['userId', [Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'totalScore']],
+      attributes: [
+        'userId',
+        [Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'totalScore'],
+      ],
       group: ['userId'],
       include: [{ model: User, attributes: ['id', 'username'] }], // Присоединяем пользователей
       order: [[Game.sequelize.fn('SUM', Game.sequelize.col('score')), 'DESC']], // Сортировка по очкам
@@ -212,7 +222,84 @@ gamesRouter.get('/statistics', verifyAccessToken, async (req, res) => {
   }
 });
 
+// Обновление счета игры
+gamesRouter.put('/:id/score', verifyAccessToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { score } = req.body;
+
+    const game = await Game.findByPk(id);
+    if (!game) {
+      return res.status(404).json({ message: 'Game not found' });
+    }
+
+    // Проверяем, принадлежит ли игра текущему пользователю
+    if (game.userId !== res.locals.user.id) {
+      return res.status(403).json({ message: 'Not authorized to update this game' });
+    }
+
+    game.score = score;
+    await game.save();
+
+    res.json(game);
+  } catch (error) {
+    console.log('Error updating game score:', error);
+    res.status(500).json({ message: 'Failed to update game score' });
+  }
+});
+
+// Получение активной игры пользователя
+gamesRouter.get('/active', verifyAccessToken, async (req, res) => {
+  try {
+    const { id: userId } = res.locals.user;
+
+    const activeGame = await Game.findOne({
+      where: {
+        userId,
+        status: 'active',
+      },
+      include: [
+        {
+          model: Answer,
+          attributes: ['questionId', 'correct', 'chosenAnswer'],
+        },
+      ],
+    });
+
+    if (!activeGame) {
+      return res.status(404).json({ message: 'No active game found' });
+    }
+
+    res.json(activeGame);
+  } catch (error) {
+    console.log('Error fetching active game:', error);
+    res.status(500).json({ message: 'Failed to fetch active game' });
+  }
+});
+
+// Завершение игры
+gamesRouter.put('/:id/finish', verifyAccessToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const game = await Game.findByPk(id);
+
+    if (!game) {
+      return res.status(404).json({ message: 'Game not found' });
+    }
+
+    // Проверяем, принадлежит ли игра текущему пользователю
+    if (game.userId !== res.locals.user.id) {
+      return res.status(403).json({ message: 'Not authorized to finish this game' });
+    }
+
+    game.status = 'completed';
+    await game.save();
+
+    res.json(game);
+  } catch (error) {
+    console.log('Error finishing game:', error);
+    res.status(500).json({ message: 'Failed to finish game' });
+  }
+});
+
 module.exports = gamesRouter;
-
-
-module.exports = gamesRouter; 
