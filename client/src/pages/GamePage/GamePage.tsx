@@ -20,8 +20,15 @@ const styles = {
     backgroundColor: 'rgb(1, 4, 81)',
     padding: '20px',
     paddingTop: '100px',
-    maxWidth: '882px',
+    maxWidth: '885px',
     margin: '0 auto',
+  },
+  title: {
+    color: 'rgb(245, 225, 126)',
+    fontSize: '32px',
+    fontWeight: 500,
+    textAlign: 'center',
+    marginBottom: '30px',
   },
   paper: {
     backgroundColor: 'transparent',
@@ -49,9 +56,6 @@ const styles = {
     paddingRight: '20px',
     margin: '-12px 0',
     position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     '&::after': {
       content: '""',
       position: 'absolute',
@@ -72,7 +76,6 @@ const styles = {
     margin: '-12px 0',
     '& > *': {
       borderRight: '3px solid rgb(245, 225, 126)',
-      borderRadius: '0px',
       '&:last-child': {
         borderRight: 'none',
       },
@@ -212,9 +215,7 @@ export function GamePage(): React.JSX.Element {
       <Paper elevation={0} sx={styles.paper}>
         {Object.entries(questionsByCategory).map(([category, categoryQuestions]) => (
           <Box key={category} sx={styles.categoryContainer}>
-            <Typography variant="h5" sx={styles.categoryTitle}>
-              {category}
-            </Typography>
+            <Typography sx={styles.categoryTitle}>{category}</Typography>
             <Box sx={styles.questionsGrid}>
               {categoryQuestions.map((question) => (
                 <QuestionCard
