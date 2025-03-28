@@ -16,6 +16,54 @@ import { ILeaderboardEntry } from '@/entities/game/model';
 import { useNavigate } from 'react-router-dom';
 import { CLIENT_ROUTES } from '@/shared/enums/clientRoutes';
 
+const styles = {
+  container: {
+    padding: '20px',
+    maxWidth: '900px',
+    margin: '0 auto',
+    backgroundColor: 'rgb(1, 4, 81)',
+  },
+  heading: {
+    margin: '40px',
+    color: 'rgb(245, 225, 126)',
+    fontSize: '32px',
+    fontWeight: 'bold',
+    marginBottom: '20px',
+  },
+  paper: {
+    padding: '20px',
+    marginBottom: '20px',
+    backgroundColor: 'transparent', 
+    border: '3px solid rgb(245, 225, 126)', 
+    borderRadius: '8px',
+  },
+  tableCell: {
+    color: 'rgb(245, 225, 126)', 
+    fontWeight: 'bold',
+  },
+  tableCellValue: {
+    color: 'rgb(245, 225, 126)', // белый цвет для значений
+  },
+  leaderboardTable: {
+    backgroundColor: 'transparent',
+    color: 'rgb(245, 225, 126)', // Устанавливаем желтый цвет для текста в таблице
+  },
+  tableRow: {
+    color: 'rgb(245, 225, 126)', 
+    
+  },
+  tableHeader: {
+    color: 'rgb(245, 225, 126)', // Устанавливаем желтый цвет для текста заголовка
+  },
+  tableHeadCell: {
+    fontWeight: 'bold',
+    color: 'rgb(245, 225, 126)', // Устанавливаем желтый цвет для текста ячеек заголовка
+  },
+  tableBodyCell: {
+    color: 'rgb(245, 225, 126)', // Устанавливаем желтый цвет для текста ячеек в теле таблицы
+  },
+};
+
 const GameStatisticsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -35,49 +83,59 @@ const GameStatisticsPage: React.FC = () => {
   if (!statistics) return <Typography>Нет данных</Typography>;
 
   return (
-    <Box sx={{ p: 4, maxWidth: '800px', margin: '0 auto' }}>
-      <Typography variant="h3" component="h1" gutterBottom>
+    <Box sx={styles.container}>
+      <Typography variant="h3" component="h1" sx={styles.heading}>
         Статистика игр
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {/* Личная статистика */}
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h5" gutterBottom>
+        <Paper sx={styles.paper}>
+          <Typography variant="h5" gutterBottom sx={{ color: 'rgb(245, 225, 126)' }}>
             Моя статистика
           </Typography>
           <TableContainer>
             <Table>
               <TableBody>
                 <TableRow>
-                  <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+                  <TableCell component="th" scope="row" sx={styles.tableCell}>
                     Всего игр
                   </TableCell>
-                  <TableCell align="right">{statistics.userStats.totalGames}</TableCell>
+                  <TableCell align="right" sx={styles.tableCellValue}>
+                    {statistics.userStats.totalGames}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+                  <TableCell component="th" scope="row" sx={styles.tableCell}>
                     Завершенных игр
                   </TableCell>
-                  <TableCell align="right">{statistics.userStats.completedGames}</TableCell>
+                  <TableCell align="right" sx={styles.tableCellValue}>
+                    {statistics.userStats.completedGames}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+                  <TableCell component="th" scope="row" sx={styles.tableCell}>
                     Общий счет
                   </TableCell>
-                  <TableCell align="right">{statistics.userStats.totalScore}</TableCell>
+                  <TableCell align="right" sx={styles.tableCellValue}>
+                    {statistics.userStats.totalScore}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+                  <TableCell component="th" scope="row" sx={styles.tableCell}>
                     Средний счет
                   </TableCell>
-                  <TableCell align="right">{statistics.userStats.averageScore}</TableCell>
+                  <TableCell align="right" sx={styles.tableCellValue}>
+                    {statistics.userStats.averageScore}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+                  <TableCell component="th" scope="row" sx={styles.tableCell}>
                     Лучшая игра
                   </TableCell>
-                  <TableCell align="right">{statistics.userStats.bestScore} очков</TableCell>
+                  <TableCell align="right" sx={styles.tableCellValue}>
+                    {statistics.userStats.bestScore} очков
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -85,22 +143,24 @@ const GameStatisticsPage: React.FC = () => {
         </Paper>
 
         {/* Таблица лидеров */}
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h5" gutterBottom>
+        <Paper sx={styles.paper}>
+          <Typography variant="h5" gutterBottom sx={{ color: 'rgb(245, 225, 126)' }}>
             Таблица лидеров
           </Typography>
-          <TableContainer>
+          <TableContainer sx={styles.leaderboardTable}>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Место</TableCell>
-                  <TableCell>Игрок</TableCell>
-                  <TableCell align="right">Счет</TableCell>
+                <TableRow sx={styles.tableHeader}>
+                  <TableCell sx={styles.tableHeadCell}>Место</TableCell>
+                  <TableCell sx={styles.tableHeadCell}>Игрок</TableCell>
+                  <TableCell align="right" sx={styles.tableHeadCell}>
+                    Счет
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {statistics.leaderboard.map((player: ILeaderboardEntry, index: number) => (
-                  <TableRow key={index}>
+                  <TableRow key={index} sx={styles.tableRow}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{player.username}</TableCell>
                     <TableCell align="right">{player.totalScore} очков</TableCell>
