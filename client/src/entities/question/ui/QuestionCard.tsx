@@ -41,7 +41,7 @@ export default function QuestionCard({
     <>
       <Card
         sx={{
-          minWidth: 200,
+          width: '120px',
           cursor: isAnswered ? 'default' : 'pointer',
           opacity: isAnswered ? 0.6 : 1,
           transition: 'all 0.3s ease',
@@ -51,16 +51,16 @@ export default function QuestionCard({
         }}
         onClick={handleCardClick}
       >
-        <CardContent>
+        <CardContent sx={{ padding: '10px' }}>
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              height: '100px',
+              height: '80px',
             }}
           >
-            <Typography variant="h3" component="div" color="primary">
+            <Typography variant="h4" component="div" color="primary">
               {question.score}
             </Typography>
           </Box>
