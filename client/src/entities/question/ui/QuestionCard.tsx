@@ -37,33 +37,56 @@ export default function QuestionCard({
     setIsModalOpen(false);
   };
 
+  const styles = {
+    card: {
+      width: '120px',
+      height: '80px',
+      backgroundColor: 'rgb(1, 4, 81)',
+      color: 'rgb(245, 225, 126)',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+      '&:hover': {
+        backgroundColor: 'rgb(75,107,222)',
+      },
+    },
+    content: {
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    score: {
+      fontSize: '24px',
+      fontWeight: 'bold',
+        color:'rgb(245, 225, 126)',
+      },
+    answered: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'not-allowed',
+    },
+  };
+
   return (
     <>
       <Card
-        sx={{
-          width: '120px',
-          cursor: isAnswered ? 'default' : 'pointer',
-          opacity: isAnswered ? 0.6 : 1,
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            transform: isAnswered ? 'none' : 'scale(1.05)',
-          },
-        }}
+        sx={styles.card}
         onClick={handleCardClick}
       >
-        <CardContent sx={{ padding: '10px' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '80px',
-            }}
-          >
-            <Typography variant="h4" component="div" color="primary">
-              {question.score}
-            </Typography>
-          </Box>
+        <CardContent sx={styles.content}>
+          <Typography variant="h4" component="div" color="primary" sx={styles.score}>
+            {question.score}
+          </Typography>
         </CardContent>
       </Card>
 

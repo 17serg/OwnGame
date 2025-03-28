@@ -9,6 +9,7 @@ import {
   ButtonGroup,
   Box,
   LinearProgress,
+  Modal,
 } from '@mui/material';
 import { IQuestion } from '../model';
 import AnswerNotification from './AnswerNotification';
@@ -28,166 +29,168 @@ export default function QuestionModal({
   onAnswer,
   onTimeout,
 }: QuestionModalProps): React.JSX.Element {
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
   const [timeLeft, setTimeLeft] = useState(20);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-
-    if (open && !isAnswered) {
+    if (open) {
       setTimeLeft(20);
       setProgress(100);
+      setIsAnswered(false);
+      setIsCorrect(false);
+      setShowNotification(false);
+    }
+  }, [open]);
 
-      timer = setInterval(() => {
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (open && timeLeft > 0 && !isAnswered) {
+      interval = setInterval(() => {
         setTimeLeft((prev) => {
           const newTime = prev - 1;
           setProgress((newTime / 20) * 100);
-
-          if (newTime <= 0) {
-            clearInterval(timer);
-            handleTimeout();
-            return 0;
-          }
           return newTime;
         });
       }, 1000);
+    } else if (timeLeft === 0 && !isAnswered) {
+      handleAnswer(false);
     }
+    return () => clearInterval(interval);
+  }, [open, timeLeft, isAnswered]);
 
-    return () => {
-      if (timer) {
-        clearInterval(timer);
-      }
-    };
-  }, [open, isAnswered]);
-
-  const handleTimeout = () => {
-    setIsAnswered(true);
-    setShowNotification(true);
-    setIsCorrect(false);
-    onTimeout();
-  };
-
-  const handleAnswer = (answerKey: string) => {
-    let selectedAnswer: string;
-
-    switch (answerKey) {
-      case 'answer1':
-        selectedAnswer = question.answer1;
-        break;
-      case 'answer2':
-        selectedAnswer = question.answer2;
-        break;
-      case 'answer3':
-        selectedAnswer = question.answer3;
-        break;
-      case 'answer4':
-        selectedAnswer = question.answer4;
-        break;
-      default:
-        selectedAnswer = '';
-    }
-
-    const isAnswerCorrect = selectedAnswer === question.correctAnswer;
-    setIsCorrect(isAnswerCorrect);
+  const handleAnswer = (isCorrect: boolean) => {
+    setIsCorrect(isCorrect);
     setShowNotification(true);
     setIsAnswered(true);
-    onAnswer(isAnswerCorrect);
+    onAnswer(isCorrect);
   };
 
-  const handleCloseNotification = () => {
+  const handleClose = () => {
     setShowNotification(false);
     onClose();
   };
 
+  const styles = {
+    modal: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '600px',
+      bgcolor: 'rgb(1, 4, 81)',
+      border: '3px solid rgb(245, 225, 126)',
+      borderRadius: '8px',
+      boxShadow: 24,
+      p: 4,
+      color: 'rgb(245, 225, 126)',
+    },
+    question: {
+      fontSize: '24px',
+      marginBottom: '20px',
+      textAlign: 'center',
+    },
+    timerContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      marginBottom: '20px',
+    },
+    progressBar: {
+      flex: 1,
+      height: '8px',
+      backgroundColor: 'rgba(245, 225, 126, 0.2)',
+      borderRadius: '4px',
+      overflow: 'hidden',
+      '& > div': {
+        height: '100%',
+        backgroundColor: 'rgb(245, 225, 126)',
+        transition: 'width 1s linear',
+      },
+    },
+    timer: {
+      fontSize: '20px',
+      color: 'rgb(245, 225, 126)',
+      minWidth: '60px',
+      textAlign: 'right',
+    },
+    answersGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, 1fr)',
+      gap: '15px',
+      marginTop: '20px',
+    },
+    answerButton: {
+      backgroundColor: 'rgb(75,107,222)',
+      color: 'rgb(245, 225, 126)',
+      '&:hover': {
+        backgroundColor: 'rgb(245, 225, 126)',
+        color: 'rgb(75,107,222)',
+      },
+      padding: '15px',
+      fontSize: '18px',
+      height: '80px',
+    },
+  };
+
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          <Box sx={{ width: '100%' }}>
-            <Typography variant="h6" component="div" color="primary">
-              {question.category} ({question.score} очков)
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-              <Box sx={{ width: '100%' }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={progress}
-                  color={timeLeft <= 5 ? 'error' : 'primary'}
-                  sx={{ height: 8, borderRadius: 4 }}
-                />
-              </Box>
-              <Typography variant="body2" color="text.secondary">
-                {timeLeft}с
-              </Typography>
-            </Box>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="h5" component="div" sx={{ my: 2 }}>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="question-modal-title"
+        aria-describedby="question-modal-description"
+      >
+        <Box sx={styles.modal}>
+          <Typography id="question-modal-title" variant="h6" component="h2" sx={styles.question}>
             {question.question}
           </Typography>
-          <ButtonGroup orientation="vertical" fullWidth>
+          <Box sx={styles.timerContainer}>
+            <Box sx={styles.progressBar}>
+              <Box sx={{ width: `${progress}%` }} />
+            </Box>
+            <Typography sx={styles.timer}>
+              {timeLeft}с
+            </Typography>
+          </Box>
+          <Box sx={styles.answersGrid}>
             <Button
-              variant={
-                isAnswered && question.correctAnswer === question.answer1 ? 'contained' : 'outlined'
-              }
-              color={
-                isAnswered && question.correctAnswer === question.answer1 ? 'success' : 'primary'
-              }
-              onClick={() => handleAnswer('answer1')}
-              disabled={isAnswered}
+              variant="contained"
+              onClick={() => handleAnswer(question.correctAnswer === question.answer1)}
+              sx={styles.answerButton}
             >
               {question.answer1}
             </Button>
             <Button
-              variant={
-                isAnswered && question.correctAnswer === question.answer2 ? 'contained' : 'outlined'
-              }
-              color={
-                isAnswered && question.correctAnswer === question.answer2 ? 'success' : 'primary'
-              }
-              onClick={() => handleAnswer('answer2')}
-              disabled={isAnswered}
+              variant="contained"
+              onClick={() => handleAnswer(question.correctAnswer === question.answer2)}
+              sx={styles.answerButton}
             >
               {question.answer2}
             </Button>
             <Button
-              variant={
-                isAnswered && question.correctAnswer === question.answer3 ? 'contained' : 'outlined'
-              }
-              color={
-                isAnswered && question.correctAnswer === question.answer3 ? 'success' : 'primary'
-              }
-              onClick={() => handleAnswer('answer3')}
-              disabled={isAnswered}
+              variant="contained"
+              onClick={() => handleAnswer(question.correctAnswer === question.answer3)}
+              sx={styles.answerButton}
             >
               {question.answer3}
             </Button>
             <Button
-              variant={
-                isAnswered && question.correctAnswer === question.answer4 ? 'contained' : 'outlined'
-              }
-              color={
-                isAnswered && question.correctAnswer === question.answer4 ? 'success' : 'primary'
-              }
-              onClick={() => handleAnswer('answer4')}
-              disabled={isAnswered}
+              variant="contained"
+              onClick={() => handleAnswer(question.correctAnswer === question.answer4)}
+              sx={styles.answerButton}
             >
               {question.answer4}
             </Button>
-          </ButtonGroup>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Закрыть</Button>
-        </DialogActions>
-      </Dialog>
+          </Box>
+        </Box>
+      </Modal>
       <AnswerNotification
         isCorrect={isCorrect}
         open={showNotification}
-        onClose={handleCloseNotification}
+        onClose={handleClose}
         message={!isCorrect && timeLeft === 0 ? 'ВЫ НЕ УСПЕЛИ ОТВЕТИТЬ НА ВОПРОС' : undefined}
       />
     </>
