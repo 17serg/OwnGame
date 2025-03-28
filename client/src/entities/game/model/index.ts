@@ -6,15 +6,16 @@ export interface IGame {
   id: number; // INTEGER, уникальный идентификатор игры
   userId: number; // INTEGER, идентификатор пользователя
   score: number; // Текущий счет в игре
-  status: "active" | "completed"; // Статус игры (активная или завершенная)
+  status: 'active' | 'completed'; // Статус игры (активная или завершенная)
   createdAt: string; // Дата создания игры
   updatedAt: string; // Дата последнего обновления игры
+  answers?: IAnswer[]; // Добавляем поле с ответами
 }
 
 // Интерфейс для статуса игры
 export interface IGameStatus {
   gameId: number; // INTEGER, идентификатор игры
-  status: "active" | "completed"; // Статус игры (активная или завершенная)
+  status: 'active' | 'completed'; // Статус игры (активная или завершенная)
   score: number; // Текущий счет
   currentQuestion: number; // Текущий вопрос, на который должен ответить игрок
 }

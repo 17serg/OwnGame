@@ -17,7 +17,7 @@ type QuestionModalProps = {
   question: IQuestion;
   open: boolean;
   onClose: () => void;
-  onAnswer: () => void;
+  onAnswer: (isCorrect: boolean) => void;
   onTimeout: () => void;
 };
 
@@ -94,7 +94,7 @@ export default function QuestionModal({
     setIsCorrect(isAnswerCorrect);
     setShowNotification(true);
     setIsAnswered(true);
-    onAnswer();
+    onAnswer(isAnswerCorrect);
   };
 
   const handleCloseNotification = () => {

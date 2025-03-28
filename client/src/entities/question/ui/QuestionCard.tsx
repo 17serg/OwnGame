@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import { IQuestion } from '../model';
 import QuestionModal from './QuestionModal';
+import { useAppSelector } from '@/shared/lib/reduxHooks';
+import { IAnswer } from '@/entities/game/model';
 
-type QuestionCardProps = {
+interface QuestionCardProps {
   question: IQuestion;
-};
+  onCorrectAnswer: (score: number) => void;
+}
 
-export default function QuestionCard({ question }: QuestionCardProps): React.JSX.Element {
+export default function QuestionCard({
+  question,
+  onCorrectAnswer,
+}: QuestionCardProps): React.JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [isTimeout, setIsTimeout] = useState(false);
+  const { game } = useAppSelector((state) => state.game);
+
+  // Проверяем, был ли дан ответ на этот вопрос
+  const isAnswered = game?.answers?.some((answer: IAnswer) => answer.questionId === question.id);
 
   const handleCardClick = (): void => {
-    if (!isAnswered && !isTimeout) {
+    if (!isAnswered) {
       setIsModalOpen(true);
     }
   };
@@ -22,14 +30,10 @@ export default function QuestionCard({ question }: QuestionCardProps): React.JSX
     setIsModalOpen(false);
   };
 
-  const handleAnswer = (): void => {
-    setIsAnswered(true);
-    setIsModalOpen(false);
-  };
-
-  const handleTimeout = (): void => {
-    setIsTimeout(true);
-    setIsAnswered(true);
+  const handleAnswer = (isCorrect: boolean): void => {
+    if (isCorrect) {
+      onCorrectAnswer(question.score);
+    }
     setIsModalOpen(false);
   };
 
@@ -37,32 +41,37 @@ export default function QuestionCard({ question }: QuestionCardProps): React.JSX
     <>
       <Card
         sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          cursor: isAnswered || isTimeout ? 'default' : 'pointer',
-          opacity: isAnswered || isTimeout ? 0.7 : 1,
-          transition: 'opacity 0.3s ease-in-out',
+          minWidth: 200,
+          cursor: isAnswered ? 'default' : 'pointer',
+          opacity: isAnswered ? 0.6 : 1,
+          transition: 'all 0.3s ease',
           '&:hover': {
-            opacity: isAnswered || isTimeout ? 0.7 : 0.8,
+            transform: isAnswered ? 'none' : 'scale(1.05)',
           },
         }}
         onClick={handleCardClick}
       >
         <CardContent>
-          <Typography variant="h2" component="div" color="primary">
-            {question.score}
-          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100px',
+            }}
+          >
+            <Typography variant="h3" component="div" color="primary">
+              {question.score}
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
+
       <QuestionModal
-        question={question}
         open={isModalOpen}
         onClose={handleCloseModal}
         onAnswer={handleAnswer}
-        onTimeout={handleTimeout}
+        question={question}
       />
     </>
   );

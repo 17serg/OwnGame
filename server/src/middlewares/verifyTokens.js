@@ -3,9 +3,11 @@ require('dotenv').config();
 
 const verifyAccessToken = (req, res, next) => {
   try {
+    console.log('Authorization header:', req.headers.authorization);
     const accessToken = req.headers.authorization.split(' ')[1]; // Bearer <token>
+    console.log('Access token:', accessToken);
     const { user } = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-    // console.log('user========', user);
+    console.log('Decoded user:', user);
     res.locals.user = user;
     return next();
   } catch (error) {
