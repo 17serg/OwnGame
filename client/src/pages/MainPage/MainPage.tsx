@@ -1,10 +1,12 @@
-import React from "react";
-import { Box, Button, Typography } from "@mui/material";
+import React, { useEffect } from 'react';
+import { Box, Button, Typography, IconButton } from '@mui/material';
 import logo from '@/assets/1674685141_grizly-club-p-svoya-igra-klipart-1.png';
-import { useNavigate } from "react-router-dom";
-import { CLIENT_ROUTES } from "@/shared/enums/clientRoutes";
-import { useAppSelector } from "@/shared/lib/reduxHooks";
-
+import { useNavigate } from 'react-router-dom';
+import { CLIENT_ROUTES } from '@/shared/enums/clientRoutes';
+import { useAppSelector } from '@/shared/lib/reduxHooks';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import SoundManager from '@/shared/lib/SoundManager';
 
 const styles = {
   container: {
@@ -15,7 +17,7 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: 'rgb(1, 4, 81)',
     position: 'relative' as const,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   logoContainer: {
     position: 'relative',
@@ -83,14 +85,42 @@ const styles = {
     position: 'relative' as const,
     zIndex: 2,
   },
+  soundButton: {
+    position: 'fixed' as const,
+    top: '20px',
+    right: '20px',
+    color: 'rgb(245, 225, 126)',
+    zIndex: 1000,
+  },
 };
 
 export function MainPage(): React.JSX.Element {
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
+  const [isMuted, setIsMuted] = React.useState(false);
+  const soundManager = SoundManager.getInstance();
+
+  useEffect(() => {
+    // Воспроизводим стартовую музыку при загрузке страницы
+    soundManager.playMainMusic();
+
+    // Останавливаем музыку при размонтировании компонента
+    return () => {
+      soundManager.stopBackgroundMusic();
+      soundManager.resetMainMusic();
+    };
+  }, []);
+
+  const handleToggleMute = (): void => {
+    soundManager.toggleMute();
+    setIsMuted(soundManager.isSoundMuted());
+  };
 
   return (
     <Box sx={styles.container}>
+      <IconButton onClick={handleToggleMute} sx={styles.soundButton}>
+        {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+      </IconButton>
       <Box sx={styles.logoContainer}>
         <Box sx={styles.glow} />
         <Box sx={styles.glow2} />
@@ -118,7 +148,9 @@ export function MainPage(): React.JSX.Element {
           >
             Войти
           </Button>
-          <Typography style={{ opacity: 0.6 }} sx={styles.text}>Еще нет аккаунта?</Typography>
+          <Typography style={{ opacity: 0.6 }} sx={styles.text}>
+            Еще нет аккаунта?
+          </Typography>
           <Button
             variant="outlined"
             sx={styles.button}
