@@ -14,6 +14,57 @@ import { IQuestion } from '@/entities/question/model';
 import { IGame } from '@/entities/game/model';
 import { AxiosError } from 'axios';
 
+const styles = {
+  container: {
+    minHeight: '100vh',
+    backgroundColor: 'rgb(1, 4, 81)',
+    padding: '20px',
+    paddingTop: '100px',
+    maxWidth: '2600px',
+    margin: '0 auto',
+  },
+  paper: {
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    width: '100%',
+    border: '3px solid rgb(245, 225, 126)',
+    borderRadius: '8px',
+  },
+  categoryContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '20px',
+    width: '100%',
+    padding: '12px',
+    borderBottom: '3px solid rgb(245, 225, 126)',
+    '&:last-child': {
+      borderBottom: 'none',
+    },
+  },
+  categoryTitle: {
+    color: 'rgb(245, 225, 126)',
+    fontSize: '24px',
+    fontWeight: 500,
+    minWidth: '250px',
+    textAlign: 'right',
+    borderRight: '3px solid rgb(245, 225, 126)',
+    paddingRight: '20px',
+  },
+  questionsGrid: {
+    display: 'flex',
+    gap: '0',
+    flexWrap: 'wrap',
+    flex: 1,
+    justifyContent: 'flex-start',
+    '& > *': {
+      borderRight: '3px solid rgb(245, 225, 126)',
+      '&:last-child': {
+        borderRight: 'none',
+      },
+    },
+  },
+};
+
 export function GamePage(): React.JSX.Element {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -97,114 +148,38 @@ export function GamePage(): React.JSX.Element {
   );
 
   return (
-    <Paper elevation={0}>
-      <Box mt={1} py={2} px={2}>
-        {/* Отображение текущего счета и кнопки завершения */}
-        <Box
-          sx={{
-            position: 'fixed',
-            top: '100px',
-            right: '20px',
-            zIndex: 1000,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-          }}
-        >
-          <Box
-            sx={{
-              backgroundColor: 'rgb(75,107,222)',
-              padding: '15px 30px',
-              borderRadius: '10px',
-              border: '2px solid rgb(245, 225, 126)',
-            }}
-          >
-            <Typography variant="h4" sx={{ color: 'rgb(245, 225, 126)' }}>
-              Счет: {game?.score || 0}
+    <Box sx={styles.container}>
+      <Paper elevation={0} sx={styles.paper}>
+        {Object.entries(questionsByCategory).map(([category, categoryQuestions]) => (
+          <Box key={category} sx={styles.categoryContainer}>
+            <Typography variant="h5" sx={styles.categoryTitle}>
+              {category}
             </Typography>
-          </Box>
-
-          {game?.status === 'active' && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleFinishGame}
-              sx={{
-                width: '100%',
-                py: 1.5,
-                backgroundColor: 'rgb(75,107,222)',
-                border: '2px solid rgb(245, 225, 126)',
-                '&:hover': {
-                  backgroundColor: 'rgb(60,90,200)',
-                },
-              }}
-            >
-              Закончить игру
-            </Button>
-          )}
-        </Box>
-
-        <Snackbar
-          open={showSuccessAlert}
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert severity="success" sx={{ width: '100%' }}>
-            Игра успешно завершена! Переход к статистике...
-          </Alert>
-        </Snackbar>
-
-        {/* Вопросы по категориям */}
-        {(Object.entries(questionsByCategory) as [string, IQuestion[]][]).map(
-          ([category, categoryQuestions]) => (
-            <Box key={category} mb={4} display="flex" alignItems="center" gap={2}>
-              <Typography
-                variant="h4"
-                component="h2"
-                color="primary"
-                sx={{
-                  minWidth: '200px',
-                  textAlign: 'right',
-                  pr: 2,
-                }}
-              >
-                {category}
-              </Typography>
-              <Box
-                display="flex"
-                flexDirection="row"
-                gap={2}
-                sx={{
-                  overflowX: 'auto',
-                  pb: 1,
-                  '&::-webkit-scrollbar': {
-                    height: '8px',
-                  },
-                  '&::-webkit-scrollbar-track': {
-                    background: '#f1f1f1',
-                    borderRadius: '4px',
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    background: '#888',
-                    borderRadius: '4px',
-                    '&:hover': {
-                      background: '#555',
-                    },
-                  },
-                }}
-              >
-                {categoryQuestions.map((question: IQuestion) => (
-                  <QuestionCard
-                    key={question.id}
-                    question={question}
-                    onCorrectAnswer={handleCorrectAnswer}
-                  />
-                ))}
-              </Box>
+            <Box sx={styles.questionsGrid}>
+              {categoryQuestions.map((question) => (
+                <QuestionCard
+                  key={question.id}
+                  question={question}
+                  onCorrectAnswer={handleCorrectAnswer}
+                  isAnswered={game?.answers?.some(
+                    (answer) => answer.questionId === question.id,
+                  )}
+                />
+              ))}
             </Box>
-          ),
-        )}
-      </Box>
-    </Paper>
+          </Box>
+        ))}
+      </Paper>
+      <Snackbar
+        open={showSuccessAlert}
+        autoHideDuration={2000}
+        onClose={() => setShowSuccessAlert(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success" sx={{ width: '100%' }}>
+          Игра успешно завершена!
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 }

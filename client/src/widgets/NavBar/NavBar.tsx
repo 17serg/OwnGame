@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, AppBar, Toolbar, Typography } from '@mui/material';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { CLIENT_ROUTES } from '@/shared/enums/clientRoutes';
 import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
 import { logoutThunk } from '@/features/authSlice/authSlice';
@@ -59,7 +59,10 @@ const styles = {
 export default function NavBar(): React.JSX.Element {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAppSelector((state) => state.auth);
+
+  const isAuthPage = location.pathname === CLIENT_ROUTES.LOGIN || location.pathname === CLIENT_ROUTES.SIGN_UP;
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logoutThunk());
@@ -83,13 +86,15 @@ export default function NavBar(): React.JSX.Element {
             >
               <img src={logoNavbar} alt="Своя игра" style={styles.logo}/>
             </Box>
-            <Box component={NavLink} to={CLIENT_ROUTES.STATISTICS} sx={{...styles.navLink, marginLeft: '1%'}}>
-              Статистика
-            </Box>
-            <Box component={NavLink} to="/" sx={{...styles.navLink, marginLeft: '59%', marginRight:'1%'}}>
+            {user && !isAuthPage && (
+              <Box component={NavLink} to={CLIENT_ROUTES.STATISTICS} sx={styles.navLink}>
+                Статистика
+              </Box>
+            )}
+            <Box component={NavLink} to="/" sx={{...styles.navLink, marginLeft: 'auto', marginRight:'1%'}}>
               {user ? `Добро пожаловать, ${user.name}` : 'Гость'}
             </Box>
-            {!user && (
+            {!user  && (
               <>
                 <Box component={NavLink} to={CLIENT_ROUTES.SIGN_UP} sx={styles.buttonLink}>
                   Регистрация
