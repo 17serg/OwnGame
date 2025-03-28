@@ -87,7 +87,7 @@ export default function NavBar(): React.JSX.Element {
               <img src={logoNavbar} alt="Своя игра" style={styles.logo}/>
             </Box>
             {user && !isAuthPage && (
-              <Box component={NavLink} to={CLIENT_ROUTES.STATISTICS} sx={styles.navLink}>
+              <Box component={NavLink} to={CLIENT_ROUTES.STATISTICS} sx={{...styles.navLink, marginLeft:'1%'}}>
                 Статистика
               </Box>
             )}
