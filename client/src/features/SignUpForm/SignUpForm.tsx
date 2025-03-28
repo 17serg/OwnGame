@@ -3,6 +3,7 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router';
 import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
 import { signupThunk } from '@/features/authSlice/authSlice';
+import { CLIENT_ROUTES } from '@/shared/enums/clientRoutes';
 
 const styles = {
   container: {
@@ -90,7 +91,7 @@ export default function SignUpForm(): React.JSX.Element {
 
     const result = await dispatch(signupThunk(data));
     if (signupThunk.fulfilled.match(result)) {
-      navigate('/');
+      navigate(CLIENT_ROUTES.GAME);
     }
   };
 

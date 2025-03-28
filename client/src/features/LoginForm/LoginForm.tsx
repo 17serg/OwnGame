@@ -3,6 +3,7 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router';
 import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
 import { loginThunk } from '@/features/authSlice/authSlice';
+import { CLIENT_ROUTES } from '@/shared/enums/clientRoutes';
 
 const styles = {
   container: {
@@ -89,10 +90,7 @@ export default function LoginForm(): React.JSX.Element {
 
     const result = await dispatch(loginThunk(data));
     if (loginThunk.fulfilled.match(result)) {
-      dispatch(loadAllBooksThunk());
-      dispatch(loadUserBooksThunk());
-      dispatch(loadFavouriteBooksThunk());
-      navigate('/');
+      navigate(CLIENT_ROUTES.GAME);
     }
   };
 

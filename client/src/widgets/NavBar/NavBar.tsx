@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box, AppBar, Toolbar, Typography } from '@mui/material';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { CLIENT_ROUTES } from '@/shared/enums/clientRoutes';
 import { useAppDispatch, useAppSelector } from '@/shared/lib/reduxHooks';
 import { logoutThunk } from '@/features/authSlice/authSlice';
+import logoNavbar from '@/assets/logo3.png';
 
 const styles = {
   navLink: {
@@ -18,6 +19,18 @@ const styles = {
     '&:hover': {
       backgroundColor: 'rgb(75,107,222)',
     },
+  },
+  logoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '100%',
+    marginTop: '-16px',
+    marginBottom: '-16px',
+  },
+  logo: {
+    height: '70px',
+    width: 'auto',
+    cursor: 'pointer',
   },
   button: {
     color: 'rgb(245, 225, 126)',
@@ -45,10 +58,12 @@ const styles = {
 
 export default function NavBar(): React.JSX.Element {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logoutThunk());
+    navigate(CLIENT_ROUTES.MAIN);
   };
 
   return (
@@ -60,18 +75,18 @@ export default function NavBar(): React.JSX.Element {
               component={user ? NavLink : 'div'} 
               to={user ? CLIENT_ROUTES.GAME : CLIENT_ROUTES.LOGIN} 
               sx={{
-                ...styles.navLink,
+                ...styles.logoContainer,
                 opacity: user ? 1 : 1,
                 cursor: user ? 'pointer' : 'not-allowed',
                 pointerEvents: user ? 'auto' : 'none',
               }}
             >
-              Своя игра
+              <img src={logoNavbar} alt="Своя игра" style={styles.logo}/>
             </Box>
-            <Box component={NavLink} to={CLIENT_ROUTES.STATISTICS} sx={styles.navLink}>
+            <Box component={NavLink} to={CLIENT_ROUTES.STATISTICS} sx={{...styles.navLink, marginLeft: '1%'}}>
               Статистика
             </Box>
-            <Box component={NavLink} to="/" sx={{...styles.navLink, marginLeft: '66%', marginRight:'4%'}}>
+            <Box component={NavLink} to="/" sx={{...styles.navLink, marginLeft: '59%', marginRight:'1%'}}>
               {user ? `Добро пожаловать, ${user.name}` : 'Гость'}
             </Box>
             {!user && (
