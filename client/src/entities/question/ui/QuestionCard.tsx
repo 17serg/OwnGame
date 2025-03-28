@@ -1,19 +1,7 @@
-import React, { CSSProperties, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import { IQuestion } from '../model';
 import QuestionModal from './QuestionModal';
-
-const cardStyle: CSSProperties = {
-  minWidth: 263,
-  maxWidth: 355,
-  minHeight: 280,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-  cursor: 'pointer',
-  transition: 'transform 0.2s',
-};
 
 type QuestionCardProps = {
   question: IQuestion;
@@ -21,12 +9,27 @@ type QuestionCardProps = {
 
 export default function QuestionCard({ question }: QuestionCardProps): React.JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [isTimeout, setIsTimeout] = useState(false);
 
   const handleCardClick = (): void => {
-    setIsModalOpen(true);
+    if (!isAnswered && !isTimeout) {
+      setIsModalOpen(true);
+    }
   };
 
   const handleCloseModal = (): void => {
+    setIsModalOpen(false);
+  };
+
+  const handleAnswer = (): void => {
+    setIsAnswered(true);
+    setIsModalOpen(false);
+  };
+
+  const handleTimeout = (): void => {
+    setIsTimeout(true);
+    setIsAnswered(true);
     setIsModalOpen(false);
   };
 
@@ -34,9 +37,16 @@ export default function QuestionCard({ question }: QuestionCardProps): React.JSX
     <>
       <Card
         sx={{
-          ...cardStyle,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          cursor: isAnswered || isTimeout ? 'default' : 'pointer',
+          opacity: isAnswered || isTimeout ? 0.7 : 1,
+          transition: 'opacity 0.3s ease-in-out',
           '&:hover': {
-            transform: 'scale(1.05)',
+            opacity: isAnswered || isTimeout ? 0.7 : 0.8,
           },
         }}
         onClick={handleCardClick}
@@ -45,12 +55,15 @@ export default function QuestionCard({ question }: QuestionCardProps): React.JSX
           <Typography variant="h2" component="div" color="primary">
             {question.score}
           </Typography>
-          <Typography variant="h6" component="div" color="text.secondary">
-            очков
-          </Typography>
         </CardContent>
       </Card>
-      <QuestionModal question={question} open={isModalOpen} onClose={handleCloseModal} />
+      <QuestionModal
+        question={question}
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        onAnswer={handleAnswer}
+        onTimeout={handleTimeout}
+      />
     </>
   );
 }
