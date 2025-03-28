@@ -1,5 +1,5 @@
 module.exports = {
-  origin: ['http://localhost:5175'],
+  origin: ['http://localhost:5173'],
   optionsSuccessStatus: 200,
   credentials: true,
 };
